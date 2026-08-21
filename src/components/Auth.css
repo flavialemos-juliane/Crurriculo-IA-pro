@@ -1,0 +1,284 @@
+/* ============================================================
+   Auth — Login/Cadastro
+   ============================================================ */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-16) var(--space-5);
+  min-height: calc(100vh - 160px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background gradient blobs */
+.auth-container::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
+  top: -150px;
+  right: -100px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.auth-container::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--brand-glow) 0%, transparent 70%);
+  bottom: -100px;
+  left: -50px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Card with luminous border */
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.auth-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-xl), 0 0 40px -10px var(--brand-glow);
+}
+
+.auth-header {
+  margin-bottom: var(--space-8);
+}
+
+/* Logo icon with gradient */
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+  color: #FFFFFF;
+  font-family: var(--font-headings);
+  font-weight: 800;
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-brand);
+}
+
+.auth-logo h2 {
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Tabs — Active with brand underline
+   ============================================================ */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--space-6);
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: var(--space-3);
+  font-family: var(--font-headings);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.auth-tab:hover {
+  color: var(--text-primary);
+}
+
+.auth-tab.active {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+}
+
+/* ============================================================
+   Alerts
+   ============================================================ */
+.auth-alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-5);
+  text-align: left;
+  line-height: 1.4;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.alert-error {
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error);
+}
+
+.alert-success {
+  background-color: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success);
+}
+
+/* ============================================================
+   Form — Input focus with brand glow
+   ============================================================ */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: var(--transition-fast);
+}
+
+.input-with-icon .form-input {
+  padding-left: 44px;
+}
+
+.input-with-icon .form-input:focus + .input-icon {
+  color: var(--brand);
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: var(--space-2);
+}
+
+.forgot-password a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.forgot-password a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  text-align: left;
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.terms-checkbox input {
+  margin-top: 4px;
+  cursor: pointer;
+  accent-color: var(--brand);
+}
+
+.terms-checkbox label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.terms-checkbox label a {
+  color: var(--brand);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.btn-block {
+  width: 100%;
+  padding: var(--space-3);
+  font-size: 1rem;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.auth-footer {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+}
+
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+}
+
+/* ============================================================
+   Spinner
+   ============================================================ */
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.spinner::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-6) var(--space-5);
+  }
+}

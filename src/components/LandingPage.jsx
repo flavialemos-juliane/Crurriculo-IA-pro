@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Sparkles, FileText, CheckCircle2, Star, Shield, ArrowRight, Brain, Briefcase, Eye, Layout } from 'lucide-react';
+import { FileText, CheckCircle2, Star, Shield, ArrowRight, Briefcase, Eye, Layout, FileEdit } from 'lucide-react';
+import LogoIcon from './LogoIcon';
 import './LandingPage.css';
 
-export default function LandingPage({ onGetStarted, onChoosePlan }) {
+export default function LandingPage({ onGetStarted }) {
   const [jobDescription, setJobDescription] = useState('');
   const [resumeText, setResumeText] = useState('');
   const [atsScore, setAtsScore] = useState(null);
   const [checkingAts, setCheckingAts] = useState(false);
-  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' ou 'yearly'
 
   const handleTestAts = (e) => {
     e.preventDefault();
@@ -20,7 +20,7 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
       const score = Math.floor(Math.random() * (95 - 65 + 1)) + 65;
       setAtsScore(score);
       setCheckingAts(false);
-    }, 1500);
+    }, 1200);
   };
 
   const templatesList = [
@@ -44,6 +44,20 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
       description: 'Design técnico de alta legibilidade, ideal para engenheiros, desenvolvedores, cientistas e profissionais focados em projetos.',
       badge: 'Alta Densidade',
       preview: ['Barra lateral técnica', 'Lista de tags compacta', 'Fonte Mono/Série']
+    },
+    {
+      id: 'minimalist',
+      title: 'Modelo Simples & Clean',
+      description: 'Design minimalista focado na clareza extrema e objetividade, ideal para qualquer área com foco direto na experiência.',
+      badge: 'Minimalista',
+      preview: ['Estrutura direta', 'Linhas limpas', 'Foco no conteúdo']
+    },
+    {
+      id: 'creative',
+      title: 'Modelo Extravagante',
+      description: 'Visual vibrante e marcante com banner com gradiente e seções em destaque, excelente para marketing e criação.',
+      badge: 'Destaque',
+      preview: ['Banner com gradiente', 'Badges estilizadas', 'Seção Especial']
     }
   ];
 
@@ -54,13 +68,13 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
         <div className="container hero-container">
           <div className="hero-content animate-fade-in">
             <div className="hero-badge">
-              <Sparkles size={14} />
-              <span>Plataforma 100% Gratuita com IA Integrada</span>
+              <LogoIcon size={14} />
+              <span>Plataforma 100% Gratuita e Profissional</span>
             </div>
-            <h1>Conquiste vagas melhores com currículos inteligentes e gratuitos</h1>
+            <h1>Conquiste vagas melhores com currículos profissionais e gratuitos</h1>
             <p className="hero-lead">
-              O CurrículoIA Pro utiliza Inteligência Artificial avançada para reescrever seu currículo, 
-              alinhar suas competências com sistemas ATS (softwares de recrutamento) e exportar em PDF perfeito.
+              O RESUMETECH oferece modelos estruturados para redigir seu currículo, 
+              alinhar suas competências com sistemas ATS (softwares de recrutamento) e exportar em PDF com formatação profissional.
             </p>
             <div className="hero-actions">
               <button className="btn btn-primary" onClick={() => onGetStarted(null)}>
@@ -103,11 +117,11 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
                     <div className="mock-exp-title"></div>
                     <div className="mock-text-line"></div>
                     <div className="mock-text-line short"></div>
-                    <div className="ai-suggestion-box">
-                      <div className="ai-badge-sml">
-                        <Sparkles size={10} /> Sugestão da IA
+                    <div className="resume-preview-callout">
+                      <div className="preview-callout-header">
+                        <CheckCircle2 size={12} style={{ color: 'var(--brand)' }} /> Exemplo de Atividade
                       </div>
-                      <p>"Gerenciei equipe de engenharia e otimizei sprints, reduzindo o tempo de entrega em 25%."</p>
+                      <p>"Atendimento cordial ao público, organização de relatórios diários e suporte operacional ao setor."</p>
                     </div>
                   </div>
                 </div>
@@ -129,7 +143,7 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
         <div className="container">
           <div className="section-header">
             <h2>Nossos Modelos de Currículo 100% Gratuitos</h2>
-            <p>Escolha um dos nossos modelos profissionais e comece a preencher imediatamente. Todos são otimizados para leitura humana e robótica (ATS) com exportação em PDF.</p>
+            <p>Escolha um dos nossos modelos profissionais e comece a preencher imediatamente. Todos são otimizados para leitura por recrutadores e sistemas ATS com exportação em PDF.</p>
           </div>
 
           <div className="templates-showcase-grid">
@@ -165,17 +179,17 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
       <section className="features-section" id="funcionalidades">
         <div className="container">
           <div className="section-header">
-            <h2>Por que escolher o CurrículoIA Pro?</h2>
-            <p>Unimos design minimalista de alta legibilidade com algoritmos inteligentes de otimização profissional totalmente livres.</p>
+            <h2>Por que escolher o RESUMETECH?</h2>
+            <p>Unimos design claro de alta legibilidade com ferramentas práticas de estruturação e formatação totalmente gratuitas.</p>
           </div>
 
           <div className="features-grid">
             <div className="feature-card card">
               <div className="feature-icon">
-                <Brain size={24} />
+                <FileEdit size={24} />
               </div>
-              <h3>Melhoria por IA Grátis</h3>
-              <p>Reescreva realizações vagas em resultados quantificáveis usando o tom corporativo ideal sem gastar nada.</p>
+              <h3>Modelos de Textos e Frases</h3>
+              <p>Formate suas atividades diárias com clareza e verbos de ação para valorizar sua experiência profissional.</p>
             </div>
 
             <div className="feature-card card">
@@ -204,7 +218,7 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
             <div className="ats-sim-info">
               <h2>Teste a Compatibilidade do seu Currículo</h2>
               <p>
-                Os sistemas das empresas (ATS) filtram currículos por palavra-chave. Cole uma descrição de vaga e um resumo profissional abaixo para testar seu nível de alinhamento com a IA do CurrículoIA Pro.
+                Os sistemas das empresas (ATS) filtram currículos por palavra-chave. Cole uma descrição de vaga e um resumo profissional abaixo para testar seu nível de alinhamento com o otimizador do RESUMETECH.
               </p>
               <ul className="ats-benefits">
                 <li><CheckCircle2 size={16} /> Identificação de palavras-chave críticas</li>
@@ -237,7 +251,7 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
               </div>
 
               <button type="submit" className="btn btn-primary btn-block" disabled={checkingAts}>
-                {checkingAts ? 'Analisando textos...' : 'Testar Compatibilidade com IA'}
+                {checkingAts ? 'Analisando textos...' : 'Testar Compatibilidade'}
               </button>
 
               {atsScore !== null && (
@@ -281,10 +295,10 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
               <ul className="pricing-features" style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', gap: '12px' }}>
                 <li><CheckCircle2 size={16} className="text-success" /> Currículos ativos ilimitados</li>
                 <li><CheckCircle2 size={16} className="text-success" /> Exportação em PDF limpa e em alta qualidade</li>
-                <li><CheckCircle2 size={16} className="text-success" /> <strong>Inteligência Artificial de redação liberada</strong></li>
-                <li><CheckCircle2 size={16} className="text-success" /> <strong>Score e análise de compatibilidade ATS</strong></li>
-                <li><CheckCircle2 size={16} className="text-success" /> Todos os 3 layouts (Moderno, Clássico, Técnico)</li>
-                <li><CheckCircle2 size={16} className="text-success" /> Questionário inteligente de onboarding</li>
+                <li><CheckCircle2 size={16} className="text-success" /> <strong>Modelos de redação e frases liberados</strong></li>
+                <li><CheckCircle2 size={16} className="text-success" /> <strong>Score e checklist de compatibilidade ATS</strong></li>
+                <li><CheckCircle2 size={16} className="text-success" /> Todos os 5 layouts (Simples, Moderno, Clássico, Técnico, Extravagante)</li>
+                <li><CheckCircle2 size={16} className="text-success" /> Questionário passo a passo de criação</li>
               </ul>
               <button className="btn btn-primary btn-block" style={{ marginTop: '24px' }} onClick={() => onGetStarted(null)}>
                 Começar a Usar Agora Grátis
@@ -301,7 +315,7 @@ export default function LandingPage({ onGetStarted, onChoosePlan }) {
             <div className="faq-info">
               <h2>Ficou com alguma dúvida?</h2>
               <p>
-                Nosso Assistente de Inteligência Artificial está sempre disponível no canto inferior direito para tirar dúvidas sobre a plataforma e dar dicas valiosas de carreira.
+                Nosso assistente está sempre disponível no canto inferior direito para tirar dúvidas sobre a plataforma e dar dicas valiosas de carreira.
               </p>
             </div>
             <div className="faq-cta">

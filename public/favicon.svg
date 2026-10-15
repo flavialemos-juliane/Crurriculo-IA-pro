@@ -1,34 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
-  <!-- Fundo Circular Arredondado em Gradiente Azul Tecnológico -->
-  <circle cx="32" cy="32" r="32" fill="url(#blueTechGrad)"/>
-  <circle cx="32" cy="32" r="30.5" stroke="white" stroke-opacity="0.3" stroke-width="1.5"/>
-
-  <!-- Linhas de Circuito & Nodos de IA em Laranja -->
-  <path d="M14 32H20M44 32H50M32 14V20M32 44V50" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
-  <circle cx="14" cy="32" r="2.5" fill="#FF7800"/>
-  <circle cx="50" cy="32" r="2.5" fill="#FF7800"/>
-  <circle cx="32" cy="14" r="2.5" fill="#FF7800"/>
-  <circle cx="32" cy="50" r="2.5" fill="#FF7800"/>
-
-  <!-- Símbolo de Documento / Núcleo de IA Central -->
-  <rect x="22" y="20" width="20" height="24" rx="4" fill="#FFFFFF" fill-opacity="0.95"/>
-  <path d="M26 27H38M26 32H34M26 37H31" stroke="#0284C7" stroke-width="2" stroke-linecap="round"/>
-
-  <!-- Brilho / Estrela de IA em Laranja Neon -->
-  <path d="M42 16L43.8 20.2L48 22L43.8 23.8L42 28L40.2 23.8L36 22L40.2 20.2L42 16Z" fill="#F97316"/>
-  <path d="M42 16L43.8 20.2L48 22L43.8 23.8L42 28L40.2 23.8L36 22L40.2 20.2L42 16Z" fill="url(#orangeGlow)"/>
-  <circle cx="42" cy="22" r="2" fill="#FFFFFF"/>
-
+  <!-- Fundo com Gradiente Violet Moderno -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#violetGrad)"/>
+  
+  <!-- Símbolo de Documento Estilizado -->
+  <rect x="14" y="10" width="22" height="28" rx="3" fill="white" fill-opacity="0.95"/>
+  <path d="M20 18H32M20 23H28M20 28H24" stroke="url(#lineGrad)" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Check de Aprovação -->
+  <circle cx="46" cy="46" r="11" fill="#10B981"/>
+  <path d="M40 46L44 50L52 42" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
   <!-- Gradientes -->
   <defs>
-    <linearGradient id="blueTechGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1E40AF"/>
-      <stop offset="0.5" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#0284C7"/>
+    <linearGradient id="violetGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="0.5" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
     </linearGradient>
-    <linearGradient id="orangeGlow" x1="36" y1="16" x2="48" y2="28" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FF7800"/>
-      <stop offset="1" stop-color="#F97316"/>
+    <linearGradient id="lineGrad" x1="20" y1="18" x2="32" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
 </svg>

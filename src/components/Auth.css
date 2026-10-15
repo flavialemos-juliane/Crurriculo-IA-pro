@@ -236,6 +236,130 @@
 }
 
 /* ============================================================
+   Saved Logins & Always Save Option
+   ============================================================ */
+.saved-logins-section {
+  margin-bottom: var(--space-5);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+}
+
+.saved-logins-header {
+  margin-bottom: var(--space-2);
+}
+
+.saved-logins-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.saved-logins-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-login-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saved-login-chip:hover {
+  border-color: var(--brand);
+  background: var(--bg-primary);
+  transform: translateY(-1px);
+}
+
+.saved-login-chip.active {
+  border-color: var(--brand);
+  background: rgba(var(--brand-rgb, 124, 58, 237), 0.08);
+}
+
+.saved-login-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.saved-login-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.saved-login-email {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-login-remove {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.saved-login-remove:hover {
+  color: var(--error);
+  background: var(--error-bg);
+}
+
+.save-login-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -4px;
+  margin-bottom: var(--space-2);
+  font-size: 0.82rem;
+}
+
+.save-login-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.save-login-label input {
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.forgot-link:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* ============================================================
    Footer
    ============================================================ */
 .auth-footer {

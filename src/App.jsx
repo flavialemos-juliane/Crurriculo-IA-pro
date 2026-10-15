@@ -3,31 +3,32 @@ import LandingPage from './components/LandingPage';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import ResumeBuilder from './components/ResumeBuilder';
-import AiAssistant from './components/AiAssistant';
-import { Sparkles, Sun, Moon, Laptop, Palette } from 'lucide-react';
+import { Sun, Moon, CheckCircle2 } from 'lucide-react';
+import LogoIcon from './components/LogoIcon';
 
 const DEFAULT_RESUME_TEMPLATES = [
   {
     id: 'demo-1',
-    title: 'Exemplo: Desenvolvedor Full Stack',
-    name: 'Roberto Souza Ramos',
-    email: 'roberto.ramos@exemplo.com',
-    phone: '(11) 99999-8888',
+    title: 'Exemplo: Atendimento & Vendas',
+    name: 'Ana Carolina dos Santos',
+    email: 'ana.santos@exemplo.com',
+    phone: '(11) 98765-4321',
     location: 'São Paulo - SP',
-    education: 'Ensino Superior Completo em Ciência da Computação',
-    age: '28 anos',
-    extraNotes: 'Disponibilidade para viagens e modelo híbrido. CNH B e Inglês Avançado.',
-    summary: 'Desenvolvedor Full Stack com 4 anos de experiência em JavaScript, React, Node.js e bancos de dados SQL/NoSQL. Focado em otimização de performance de sistemas e arquiteturas escaláveis.',
+    education: 'Ensino Médio Completo / Cursos Profissionalizantes',
+    age: '26 anos',
+    extraNotes: 'Disponibilidade para início imediato, facilidade de deslocamento e bom trabalho em equipe.',
+    summary: 'Profissional dedicada e comunicativa, com experiência em atendimento ao público, rotinas administrativas e organização de setores. Foco em pontualidade, excelente relacionamento interpessoal e qualidade nas entregas diárias.',
     experiences: [
       {
         id: 'exp-1',
-        role: 'Desenvolvedor Frontend Pleno',
-        company: 'Vanguard Tech',
+        role: 'Atendente e Auxiliar de Atendimento',
+        company: 'Comércio & Serviços Brasil',
         period: 'Mar/2022 - Presente',
-        description: 'Trabalhei no desenvolvimento de interfaces interativas e otimização de aplicações Web de alto tráfego. Liderei refatoração de código legado que melhorou o tempo de carregamento em 30%.'
+        description: 'Atendimento presencial e telefônico a clientes com foco em cordialidade e rapidez. Esclarecimento de dúvidas, registro e organização de pedidos, e apoio direto na organização do setor.'
       }
     ],
-    skills: ['React', 'Node.js', 'TypeScript', 'SQL', 'Git', 'Clean Code'],
+    skills: ['Atendimento ao Cliente', 'Boa Comunicação', 'Informática Básica', 'Organização', 'Trabalho em Equipe', 'Pontualidade'],
+    template: 'modern',
     updatedAt: new Date().toISOString()
   }
 ];
@@ -35,50 +36,78 @@ const DEFAULT_RESUME_TEMPLATES = [
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'auth', 'dashboard', 'builder'
-  const [activeResumeId, setActiveResumeId] = useState(null);
-  const [theme, setTheme] = useState('light');
-  const [colorScheme, setColorScheme] = useState('violet'); // 'violet', 'emerald', 'sapphire', 'gold'
+  const [activeResumeId, setActiveResumeId] = useState(() => localStorage.getItem('resumetech_active_resume_id') || null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('resumetech_theme') || 'light');
+  const [colorScheme, setColorScheme] = useState(() => localStorage.getItem('resumetech_scheme') || 'violet'); // 'violet', 'emerald', 'sapphire', 'gold'
+  const [pendingTemplate, setPendingTemplate] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 3200);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // Carregar sessão existente e preferências do localStorage
   useEffect(() => {
-    const savedScheme = localStorage.getItem('resumetech_scheme') || 'violet';
-    setColorScheme(savedScheme);
-
     const session = localStorage.getItem('resumetech_session');
     if (session) {
-      const parsedUser = JSON.parse(session);
-      // Sincronizar dados mais atualizados do banco local de usuários
-      const users = JSON.parse(localStorage.getItem('resumetech_users') || '[]');
-      const latestUserData = users.find(u => u.id === parsedUser.id);
-      if (latestUserData) {
+      try {
+        const parsedUser = JSON.parse(session);
+        const users = JSON.parse(localStorage.getItem('resumetech_users') || '[]');
+        const latestUserData = users.find(u => u.id === parsedUser.id) || parsedUser;
         setCurrentUser(latestUserData);
-        setCurrentView('dashboard');
-      } else {
-        setCurrentUser(parsedUser);
-        setCurrentView('dashboard');
+
+        const savedActiveId = localStorage.getItem('resumetech_active_resume_id');
+        const savedView = localStorage.getItem('resumetech_view');
+        if (savedActiveId && latestUserData.resumes?.some(r => r.id === savedActiveId) && savedView === 'builder') {
+          setActiveResumeId(savedActiveId);
+          setCurrentView('builder');
+        } else {
+          setCurrentView('dashboard');
+        }
+      } catch (err) {
+        console.error('Erro ao restaurar sessão:', err);
       }
     }
   }, []);
 
-  // Monitorar tema, esquema de cor e título dinâmico da página
+  // Monitorar tema e esquema de cores
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.setAttribute('data-color-scheme', colorScheme);
+    localStorage.setItem('resumetech_theme', theme);
     localStorage.setItem('resumetech_scheme', colorScheme);
   }, [theme, colorScheme]);
 
+  // Monitorar título e persistência de visualização
   useEffect(() => {
+    localStorage.setItem('resumetech_view', currentView);
     if (currentView === 'builder') {
-      document.title = 'Editando Currículo | CurrículoIA PRO';
+      document.title = 'Editando Currículo | RESUMETECH';
     } else if (currentView === 'dashboard') {
-      document.title = 'Meu Painel de Currículos | CurrículoIA PRO';
+      document.title = 'Meu Painel de Currículos | RESUMETECH';
     } else {
-      document.title = 'CurrículoIA PRO | Otimizador & Criador de Currículos Inteligentes com IA';
+      document.title = 'RESUMETECH | Criador de Currículos Profissionais';
     }
   }, [currentView]);
 
+  const handleSetActiveResume = (id) => {
+    setActiveResumeId(id);
+    if (id) {
+      localStorage.setItem('resumetech_active_resume_id', id);
+    } else {
+      localStorage.removeItem('resumetech_active_resume_id');
+    }
+  };
+
   const handleLoginSuccess = (user) => {
-    // Garantir que novos usuários comecem com pelo menos um template demonstrativo para testar as ferramentas facilmente
     if (user.resumes.length === 0) {
       user.resumes = [...DEFAULT_RESUME_TEMPLATES];
       const users = JSON.parse(localStorage.getItem('resumetech_users') || '[]');
@@ -88,29 +117,26 @@ export default function App() {
         localStorage.setItem('resumetech_users', JSON.stringify(users));
       }
     }
+
     setCurrentUser(user);
     localStorage.setItem('resumetech_session', JSON.stringify(user));
-    setCurrentView('dashboard');
+
+    if (pendingTemplate) {
+      handleCreateResume(pendingTemplate, user);
+      setPendingTemplate(null);
+    } else {
+      setCurrentView('dashboard');
+    }
+    showToast(`Bem-vindo, ${user.name}!`);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    handleSetActiveResume(null);
     localStorage.removeItem('resumetech_session');
+    localStorage.removeItem('resumetech_view');
     setCurrentView('landing');
-  };
-
-  const handleUpgradePlan = () => {
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, plan: 'premium' };
-    updateUserInDatabase(updatedUser);
-  };
-
-  const handleDowngradePlan = () => {
-    if (!currentUser) return;
-    if (window.confirm('Tem certeza que deseja cancelar sua assinatura Premium? Você perderá acesso aos recursos avançados de IA e exportações premium.')) {
-      const updatedUser = { ...currentUser, plan: 'free' };
-      updateUserInDatabase(updatedUser);
-    }
+    showToast('Você saiu da sua conta.');
   };
 
   const updateUserInDatabase = (updatedUser) => {
@@ -126,33 +152,39 @@ export default function App() {
   };
 
   // Funções de Gerenciamento de Currículo no State / DB
-  const handleCreateResume = () => {
-    if (!currentUser) return;
+  const handleCreateResume = (initialTemplate = 'modern', userTarget = currentUser) => {
+    const target = userTarget || currentUser;
+    if (!target) return;
 
     const newResume = {
       id: Date.now().toString(),
-      title: `Currículo #${currentUser.resumes.length + 1}`,
-      name: currentUser.name,
-      email: currentUser.email,
+      title: `Currículo #${target.resumes.length + 1}`,
+      name: target.name,
+      email: target.email,
       phone: '',
       location: '',
+      education: '',
+      age: '',
+      extraNotes: '',
       summary: '',
       experiences: [],
       skills: [],
+      template: initialTemplate || 'modern',
       updatedAt: new Date().toISOString()
     };
 
     const updatedUser = {
-      ...currentUser,
-      resumes: [...currentUser.resumes, newResume]
+      ...target,
+      resumes: [...target.resumes, newResume]
     };
     updateUserInDatabase(updatedUser);
-    setActiveResumeId(newResume.id);
+    handleSetActiveResume(newResume.id);
     setCurrentView('builder');
+    showToast('Novo currículo criado!');
   };
 
   const handleEditResume = (id) => {
-    setActiveResumeId(id);
+    handleSetActiveResume(id);
     setCurrentView('builder');
   };
 
@@ -164,6 +196,10 @@ export default function App() {
         resumes: updatedResumes
       };
       updateUserInDatabase(updatedUser);
+      if (activeResumeId === id) {
+        handleSetActiveResume(null);
+      }
+      showToast('Currículo excluído com sucesso.');
     }
   };
 
@@ -174,22 +210,34 @@ export default function App() {
       resumes: updatedResumes
     };
     updateUserInDatabase(updatedUser);
-    alert('Alterações salvas com sucesso!');
+    showToast('Currículo salvo com sucesso!');
+  };
+
+  const handleGetStarted = (templateId = null) => {
+    if (templateId) {
+      setPendingTemplate(templateId);
+    }
+    if (currentUser) {
+      handleCreateResume(templateId);
+    } else {
+      setCurrentView('auth');
+    }
   };
 
   const activeResume = currentUser?.resumes.find(r => r.id === activeResumeId);
 
   return (
     <div className="app-layout">
+      <a href="#main-content" className="skip-link">Pular para o conteúdo principal</a>
       {/* Top Navbar Geral */}
       <nav className="global-navbar">
         <div className="container navbar-container">
           <div className="nav-brand" onClick={() => setCurrentView(currentUser ? 'dashboard' : 'landing')}>
             <div className="nav-logo-icon">
-              <Sparkles size={18} />
+              <LogoIcon size={18} />
             </div>
             <span className="brand-text">
-              Currículo<strong style={{ color: 'var(--brand)' }}>IA</strong> <span className="brand-badge-pro">PRO</span>
+              RESUME<strong style={{ color: 'var(--brand)' }}>TECH</strong>
             </span>
           </div>
 
@@ -207,22 +255,26 @@ export default function App() {
               <button 
                 className={`scheme-dot violet ${colorScheme === 'violet' ? 'active' : ''}`}
                 onClick={() => setColorScheme('violet')}
-                title="Tonalidade Violet AI"
+                title="Tonalidade Violeta"
+                aria-label="Tonalidade Violeta"
               />
               <button 
                 className={`scheme-dot emerald ${colorScheme === 'emerald' ? 'active' : ''}`}
                 onClick={() => setColorScheme('emerald')}
-                title="Tonalidade Emerald Tech"
+                title="Tonalidade Verde Esmeralda"
+                aria-label="Tonalidade Verde Esmeralda"
               />
               <button 
                 className={`scheme-dot sapphire ${colorScheme === 'sapphire' ? 'active' : ''}`}
                 onClick={() => setColorScheme('sapphire')}
-                title="Tonalidade Electric Sapphire"
+                title="Tonalidade Azul Safira"
+                aria-label="Tonalidade Azul Safira"
               />
               <button 
                 className={`scheme-dot gold ${colorScheme === 'gold' ? 'active' : ''}`}
                 onClick={() => setColorScheme('gold')}
-                title="Tonalidade Amber Gold Luxe"
+                title="Tonalidade Dourada"
+                aria-label="Tonalidade Dourada"
               />
             </div>
 
@@ -230,7 +282,8 @@ export default function App() {
             <button 
               className="theme-toggle-btn" 
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              title="Alternar Modo Claro / Escuro"
+              title={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+              aria-label={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
             </button>
@@ -250,19 +303,20 @@ export default function App() {
         </div>
       </nav>
 
+      {/* Notificação Toast Flutuante */}
+      {toast && (
+        <aside className="toast-container" role="status" aria-live="polite" aria-atomic="true">
+          <div className={`toast-item ${toast.type}`}>
+            <CheckCircle2 size={18} />
+            <span>{toast.message}</span>
+          </div>
+        </aside>
+      )}
+
       {/* Conteúdo das Telas */}
-      <main className="main-content-flow">
+      <main id="main-content" className="main-content-flow" tabIndex={-1}>
         {currentView === 'landing' && (
-          <LandingPage 
-            onGetStarted={() => setCurrentView('auth')} 
-            onChoosePlan={() => {
-              if (currentUser) {
-                setCurrentView('dashboard');
-              } else {
-                setCurrentView('auth');
-              }
-            }} 
-          />
+          <LandingPage onGetStarted={handleGetStarted} />
         )}
         
         {currentView === 'auth' && (
@@ -273,21 +327,21 @@ export default function App() {
           <Dashboard 
             user={currentUser}
             onLogout={handleLogout}
-            onCreateResume={handleCreateResume}
+            onCreateResume={() => handleCreateResume()}
             onEditResume={handleEditResume}
             onDeleteResume={handleDeleteResume}
-            onUpgradePlan={handleUpgradePlan}
-            onDowngradePlan={handleDowngradePlan}
           />
         )}
 
         {currentView === 'builder' && currentUser && activeResume && (
           <ResumeBuilder 
+            key={activeResume.id}
             resume={activeResume}
-            userPlan="premium"
+            userPlan="free"
             onSave={handleSaveResume}
-            onBack={() => setCurrentView('dashboard')}
-            onTriggerUpgrade={() => {
+            showToast={showToast}
+            onBack={() => {
+              handleSetActiveResume(null);
               setCurrentView('dashboard');
             }}
           />
@@ -301,22 +355,18 @@ export default function App() {
             <div className="footer-brand-side">
               <div className="footer-logo">
                 <div className="nav-logo-icon">
-                  <Sparkles size={16} />
+                  <LogoIcon size={16} />
                 </div>
-                <h3>CurrículoIA Pro</h3>
+                <h3>RESUMETECH</h3>
               </div>
-              <p>Plataforma 100% gratuita para criação de currículos profissionais otimizados por Inteligência Artificial.</p>
+              <p>Plataforma 100% gratuita para criação de currículos profissionais de alta qualidade.</p>
             </div>
             <div className="footer-links-side">
-              <span>© {new Date().getFullYear()} CurrículoIA Pro. 100% Gratuito. Todos os direitos reservados.</span>
+              <span>© {new Date().getFullYear()} RESUMETECH. 100% Gratuito. Todos os direitos reservados.</span>
             </div>
           </div>
         </footer>
       )}
-
-      {/* Assistente de Inteligência Artificial Geral */}
-      <AiAssistant />
     </div>
   );
 }
-

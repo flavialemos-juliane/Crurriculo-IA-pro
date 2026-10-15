@@ -1,40 +1,17 @@
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, CreditCard, LogOut, FileText, Check, AlertCircle, Award } from 'lucide-react';
+import React from 'react';
+import { Plus, Edit2, Trash2, LogOut, FileText, Check, Award, Layout } from 'lucide-react';
 import './Dashboard.css';
 
-export default function Dashboard({ user, onLogout, onCreateResume, onEditResume, onDeleteResume, onUpgradePlan, onDowngradePlan }) {
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedCycle, setSelectedCycle] = useState('monthly'); // 'monthly' ou 'yearly'
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+const TEMPLATE_NAMES = {
+  modern: 'Moderno',
+  classic: 'Clássico',
+  tech: 'Técnico',
+  minimalist: 'Simples',
+  creative: 'Extravagante'
+};
 
-  const handleUpgradeSubmit = (e) => {
-    e.preventDefault();
-    setPaymentLoading(true);
-
-    setTimeout(() => {
-      setPaymentLoading(false);
-      setPaymentSuccess(true);
-
-      setTimeout(() => {
-        onUpgradePlan(selectedCycle);
-        setShowUpgradeModal(false);
-        setPaymentSuccess(false);
-        setCardNumber('');
-        setCardName('');
-        setCardExpiry('');
-        setCardCvv('');
-      }, 1500);
-    }, 1500);
-  };
-
-  const isPremium = user.plan === 'premium' || user.plan === 'premium_monthly' || user.plan === 'premium_yearly';
-  const planLabel = user.plan === 'premium_yearly' ? 'Assinatura Premium Anual' : 
-                    (user.plan === 'premium' || user.plan === 'premium_monthly' ? 'Assinatura Premium Mensal' : 'Plano Gratuito');
+export default function Dashboard({ user, onLogout, onCreateResume, onEditResume, onDeleteResume }) {
+  const resumeCount = user.resumes ? user.resumes.length : 0;
 
   return (
     <div className="dashboard-wrapper container animate-fade-in">
@@ -46,7 +23,7 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
           </div>
           <div className="profile-details">
             <h2>Olá, {user.name}!</h2>
-            <p>Seja bem-vindo ao seu painel profissional.</p>
+            <p>Seja bem-vindo ao seu painel profissional ({resumeCount} {resumeCount === 1 ? 'currículo ativo' : 'currículos ativos'}).</p>
           </div>
         </div>
 
@@ -55,7 +32,7 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
             <Award size={16} />
             <span>Acesso 100% Gratuito</span>
           </div>
-          <button className="btn btn-secondary btn-sm" onClick={onLogout}>
+          <button className="btn btn-secondary btn-sm" onClick={onLogout} aria-label="Sair da conta">
             <LogOut size={16} />
             Sair
           </button>
@@ -67,7 +44,7 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
         <section className="resumes-section">
           <div className="section-title-row">
             <h3>Meus Currículos</h3>
-            <button className="btn btn-primary" onClick={onCreateResume}>
+            <button className="btn btn-primary" onClick={onCreateResume} aria-label="Criar novo currículo">
               <Plus size={18} />
               Criar Novo
             </button>
@@ -83,7 +60,15 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
                     </div>
                     <div>
                       <h4>{resume.title || 'Sem título'}</h4>
-                      <p>Atualizado em: {new Date(resume.updatedAt || Date.now()).toLocaleDateString()}</p>
+                      <p style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
+                        <span>Atualizado em: {new Date(resume.updatedAt || Date.now()).toLocaleDateString('pt-BR')}</span>
+                        {resume.template && (
+                          <span className="badge" style={{ fontSize: '0.72rem', padding: '2px 6px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                            <Layout size={10} style={{ marginRight: '3px' }} />
+                            {TEMPLATE_NAMES[resume.template] || resume.template}
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
 
@@ -91,12 +76,14 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
                     <button 
                       className="btn btn-secondary btn-sm"
                       onClick={() => onEditResume(resume.id)}
+                      aria-label={`Editar currículo ${resume.title}`}
                     >
                       <Edit2 size={14} /> Editar
                     </button>
                     <button 
                       className="btn btn-accent btn-sm"
                       onClick={() => onDeleteResume(resume.id)}
+                      aria-label={`Excluir currículo ${resume.title}`}
                     >
                       <Trash2 size={14} /> Excluir
                     </button>
@@ -109,14 +96,14 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
               <FileText size={48} className="empty-icon" />
               <h4>Nenhum currículo criado ainda</h4>
               <p>Comece a construir seu currículo inteligente agora mesmo de forma rápida.</p>
-              <button className="btn btn-secondary" onClick={onCreateResume}>
+              <button className="btn btn-primary" onClick={onCreateResume}>
                 Criar Primeiro Currículo
               </button>
             </div>
           )}
         </section>
 
-        {/* Gerenciador de Assinatura */}
+        {/* Gerenciador de Status da Conta */}
         <aside className="subscription-sidebar">
           <div className="card subscription-card">
             <h3>Status da Conta</h3>
@@ -134,104 +121,22 @@ export default function Dashboard({ user, onLogout, onCreateResume, onEditResume
                   <Check size={14} className="text-success" /> Exportação ilimitada em PDF
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '0.85rem' }}>
-                  <Check size={14} className="text-success" /> Otimização de textos por IA
+                  <Check size={14} className="text-success" /> Otimização inteligente em 4 tons
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '0.85rem' }}>
                   <Check size={14} className="text-success" /> Análise e score de vagas (ATS)
                 </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '0.85rem' }}>
+                  <Check size={14} className="text-success" /> 5 Modelos profissionais completos
+                </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
-                  <Check size={14} className="text-success" /> Currículos ativos ilimitados
+                  <Check size={14} className="text-success" /> Assistente de Carreira integrado
                 </li>
               </ul>
             </div>
           </div>
         </aside>
       </div>
-
-      {/* Modal de Upgrade */}
-      {showUpgradeModal && (
-        <div className="modal-overlay">
-          <div className="modal-content animate-fade-in">
-            <div className="modal-header">
-              <h3>{selectedCycle === 'yearly' ? 'Assinatura Premium Anual' : 'Assinatura Premium Mensal'}</h3>
-              <button className="modal-close" onClick={() => setShowUpgradeModal(false)}>✕</button>
-            </div>
-            
-            {paymentSuccess ? (
-              <div className="payment-success-view text-center">
-                <div className="success-icon-check">
-                  <Check size={36} />
-                </div>
-                <h4>Pagamento Aprovado!</h4>
-                <p>Seja bem-vindo ao clube Premium. Suas ferramentas de IA e múltiplos layouts foram desbloqueados.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleUpgradeSubmit} className="payment-form">
-                <div className="payment-summary">
-                  <span>RESUMETECH Premium ({selectedCycle === 'yearly' ? 'Anual' : 'Mensal'})</span>
-                  <strong>{selectedCycle === 'yearly' ? 'R$ 238,80 / ano' : 'R$ 29,90 / mês'}</strong>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Nome no Cartão</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder="JOÃO SILVA" 
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                    required 
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Número do Cartão</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder="0000 0000 0000 0000" 
-                    maxLength="19"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                    required 
-                  />
-                </div>
-
-                <div className="form-row-double">
-                  <div className="form-group">
-                    <label className="form-label">Validade</label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
-                      placeholder="MM/AA" 
-                      maxLength="5"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(e.target.value)}
-                      required 
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">CVC / CVV</label>
-                    <input 
-                      type="password" 
-                      className="form-input" 
-                      placeholder="123" 
-                      maxLength="4"
-                      value={cardCvv}
-                      onChange={(e) => setCardCvv(e.target.value)}
-                      required 
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-block" disabled={paymentLoading}>
-                  {paymentLoading ? 'Processando pagamento...' : 'Confirmar Assinatura'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,57 +1,135 @@
 import React, { useState } from 'react';
 import html2pdf from 'html2pdf.js';
 import { 
-  ArrowLeft, Save, Download, Sparkles, Plus, Trash2, HelpCircle, Key, Layout, 
-  CheckCircle, ChevronRight, User, ShieldCheck, FileCheck, Wand2, Sliders, 
+  ArrowLeft, Save, Download, Plus, Trash2, HelpCircle, Key, Layout, 
+  CheckCircle, ChevronRight, User, ShieldCheck, FileCheck, FileEdit, Sliders, 
   ChevronDown, ChevronUp, Copy, Check, FileText, Award, Briefcase, Printer
 } from 'lucide-react';
+import LogoIcon from './LogoIcon';
 import './ResumeBuilder.css';
 
-// Sugestões de IA por Tom
+// Sugestões de Texto por Tom (Simples e Acessíveis a Todo o Público)
 const AI_TONE_SUGGESTIONS = {
-  executive: {
-    label: '👑 Executivo / Gestão',
-    summary: 'Executivo(a) sênior orientado a resultados com vasta experiência em gestão estratégica, governança de processos e otimização operacional. Histórico comprovado de liderança de equipes de alta performance, expansão de receitas e implementação de soluções de alto impacto corporativo.',
-    experience: 'Liderei iniciativas estratégicas de otimização operacional, gerenciando recursos multifuncionais e entregando aumento de 32% no ROI departamental com redução de custos em tempo recorde.'
+  formal: {
+    label: '📋 Formal / Profissional',
+    summary: 'Profissional dedicado(a) e responsável, com experiência prática em rotinas de trabalho, organização e bom relacionamento com o público. Foco em pontualidade, ética profissional, cumprimento de prazos e cooperação ativa com toda a equipe.',
+    experience: 'Responsável pela execução diária das atividades e rotinas de atendimento, mantendo os registros organizados, cumprindo tarefas com agilidade e cooperando para o bom funcionamento do setor.'
   },
-  tech: {
-    label: '⚡ Técnico / Especialista',
-    summary: 'Especialista técnico focado em desenvolvimento de arquiteturas escaláveis, automação de processos e implementação de melhores práticas (Clean Code, CI/CD). Sólido domínio em análises estruturadas e metodologias ágeis.',
-    experience: 'Desenvolvi e mantive sistemas críticos de alta disponibilidade, reduzindo a latência de chamadas em 40% e garantindo cobertura de testes automatizados em 90%+.'
-  },
-  concise: {
+  objective: {
     label: '🎯 Direto / Objetivo',
-    summary: 'Profissional altamente focado e disciplinado, especialista no cumprimento ágil de metas operacionais e entregas de alta qualidade.',
-    experience: 'Gestão direta de fluxos operacionais e atendimento de demandas críticas, garantindo cumprimento de prazos com 100% de precisão nos indicadores de qualidade.'
+    summary: 'Profissional focado(a) e pontual, com facilidade para aprender novas rotinas, agilidade no cumprimento de tarefas diárias e dedicação constante ao trabalho.',
+    experience: 'Execução prática das atividades do dia a dia, prestando atendimento direto, controle de prazos e apoio aos colegas de equipe com total disciplina.'
   },
-  creative: {
-    label: '💡 Criativo / Inovador',
-    summary: 'Profissional inovador e apaixonado por transformar desafios complexos em soluções simples e experiências memoráveis por meio do pensamento sistêmico.',
-    experience: 'Idealizei e executei campanhas interativas que elevaram o engajamento do público em 50% e posicionaram os produtos como referência no segmento.'
+  communicative: {
+    label: '🤝 Atendimento & Relacionamento',
+    summary: 'Profissional comunicativo(a) e cortês, com facilidade para lidar com o público e trabalho colaborativo em equipe. Habilidade no acolhimento de clientes, esclarecimento de dúvidas e resolução ágil de pedidos.',
+    experience: 'Atendimento cordial a clientes, esclarecimento de dúvidas e solução rápida de solicitações, mantendo elevado padrão de simpatia, organização e presteza.'
+  },
+  dedicated: {
+    label: '⭐ Dinâmico / Dedicado',
+    summary: 'Profissional dinâmico(a), proativo(a) e com grande disposição para aprender e colaborar. Comprometido(a) com a organização do ambiente de trabalho e o alcance dos objetivos da equipe.',
+    experience: 'Apoio geral às rotinas de trabalho, zelar pela organização dos materiais e do setor, agilidade no cumprimento de demandas e disposição permanente para ajudar.'
   }
 };
 
 const SKILL_BUNDLES = [
-  { label: '💻 Tecnologia & Dev', skills: ['React.js', 'Node.js', 'TypeScript', 'Git & GitHub', 'SQL', 'APIs RESTful', 'Docker', 'Scrum'] },
-  { label: '🎨 Design & Produto', skills: ['Figma', 'UI/UX Design', 'Design System', 'Wireframing', 'Adobe Photoshop', 'Prototipagem'] },
-  { label: '📊 Gestão & Negócios', skills: ['Gestão de Projetos', 'Negociação', 'Análise de KPIs', 'Liderança', 'Power BI', 'Planejamento Estratégico'] },
-  { label: '🎯 Vendas & Marketing', skills: ['Vendas B2B', 'CRM Salesforce', 'Prospecção Ativa', 'Inbound Marketing', 'Customer Success', 'Pitch de Vendas'] }
+  { 
+    label: '🤝 Competências Gerais & Comportamentais', 
+    skills: [
+      'Comunicação Clara', 
+      'Trabalho em Equipe', 
+      'Pontualidade e Compromisso', 
+      'Proatividade', 
+      'Resolução de Problemas', 
+      'Organização e Foco', 
+      'Facilidade para Aprender', 
+      'Relacionamento Interpessoal', 
+      'Empatia no Atendimento', 
+      'Gestão do Tempo',
+      'Ética Profissional',
+      'Adaptabilidade'
+    ] 
+  },
+  { 
+    label: '📋 Administrativo & Operacional', 
+    skills: [
+      'Rotinas Administrativas', 
+      'Organização de Documentos', 
+      'Controle de Arquivos', 
+      'Preenchimento de Planilhas', 
+      'Elaboração de Relatórios', 
+      'Controle de Estoque', 
+      'Recepção e Triagem', 
+      'Atenção aos Detalhes',
+      'Emissão de Notas Fiscais'
+    ] 
+  },
+  { 
+    label: '💻 Informática & Ferramentas Digitais', 
+    skills: [
+      'Informática Básica', 
+      'Pacote Office (Word e Excel)', 
+      'Google Workspace (Drive / Docs)', 
+      'Envio e Gestão de E-mails', 
+      'Digitação Ágil', 
+      'Navegação e Pesquisa na Internet', 
+      'WhatsApp Comercial', 
+      'Sistemas de Gestão Básicos'
+    ] 
+  },
+  { 
+    label: '🛒 Vendas, Atendimento & Balcão', 
+    skills: [
+      'Atendimento ao Cliente', 
+      'Técnicas de Vendas', 
+      'Operação de Caixa', 
+      'Abertura e Fechamento de Caixa', 
+      'Reposição de Mercadorias', 
+      'Negociação Simples', 
+      'Pós-Venda e Fidelização', 
+      'Organização de Loja'
+    ] 
+  },
+  { 
+    label: '👥 Liderança & Gestão de Pessoas', 
+    skills: [
+      'Liderança de Equipes', 
+      'Mediação de Conflitos', 
+      'Orientação para Resultados', 
+      'Distribuição de Tarefas', 
+      'Treinamento e Acolhimento', 
+      'Tomada de Decisão'
+    ] 
+  },
+  { 
+    label: '📦 Logística, Serviços & Apoio Geral', 
+    skills: [
+      'Conferência de Cargas', 
+      'Organização de Almoxarifado', 
+      'Apoio Operacional', 
+      'Cumprimento de Normas de Segurança', 
+      'Agilidade em Processos', 
+      'Separação de Mercadorias (Picking)'
+    ] 
+  }
 ];
 
 const PREDEFINED_QUALITIES = [
-  'Liderança de Equipes',
-  'Comunicação Assertiva',
+  'Comunicação Clara e Assertiva',
+  'Atendimento com Empatia',
   'Trabalho em Equipe',
-  'Resolução de Problemas',
-  'Organização & Foco',
-  'Criatividade',
-  'Proatividade',
-  'Adaptabilidade',
-  'Pensamento Crítico',
-  'Gestão do Tempo'
+  'Organização e Foco',
+  'Pontualidade e Compromisso',
+  'Facilidade para Aprender',
+  'Proatividade e Dedicação',
+  'Resolução de Problemas do Dia a Dia',
+  'Atenção aos Detalhes',
+  'Flexibilidade e Adaptação',
+  'Ética e Responsabilidade',
+  'Agilidade e Dinamismo'
 ];
 
-export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTriggerUpgrade }) {
+export default function ResumeBuilder({ resume, onSave, onBack, showToast }) {
   // Estado do Wizard (Questionário Inicial)
   // Mostrar apenas se o currículo estiver completamente vazio (ou for novo)
   const [showWizard, setShowWizard] = useState(
@@ -65,7 +143,7 @@ export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTrig
 
   // Estados principais do currículo
   const [activeTab, setActiveTab] = useState('profile');
-  const [title, setTitle] = useState(resume.title || 'Meu Currículo Inteligente');
+  const [title, setTitle] = useState(resume.title || 'Meu Currículo Profissional');
   const [name, setName] = useState(resume.name || '');
   const [email, setEmail] = useState(resume.email || '');
   const [phone, setPhone] = useState(resume.phone || '');
@@ -76,12 +154,12 @@ export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTrig
   const [summary, setSummary] = useState(resume.summary || '');
   const [experiences, setExperiences] = useState(resume.experiences || []);
   const [skills, setSkills] = useState(resume.skills || []);
-  const [selectedTemplate, setSelectedTemplate] = useState('modern'); // 'modern', 'classic', 'tech'
+  const [selectedTemplate, setSelectedTemplate] = useState(resume.template || 'modern'); // 'minimalist', 'modern', 'classic', 'tech', 'creative'
 
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [aiTargetField, setAiTargetField] = useState(null);
-  const [selectedTone, setSelectedTone] = useState('executive'); // 'executive', 'tech', 'concise', 'creative'
+  const [selectedTone, setSelectedTone] = useState('formal'); // 'formal', 'objective', 'communicative', 'dedicated'
   const [showAtsDrawer, setShowAtsDrawer] = useState(false);
   const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
   const [coverLetterText, setCoverLetterText] = useState('');
@@ -132,29 +210,25 @@ export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTrig
 
   const atsAudit = calculateAtsScore();
 
-  // Motor Dinâmico de IA que Analisa e Reescreve o Texto Digitado pelo Cliente
+  // Motor de Reescrita de Texto
   const generateSmartRewrittenText = (field, rawText, tone, skillsList = [], jobTitle = '', expRole = '', expCompany = '') => {
     const cleanInput = (rawText || '').trim();
     const lowerInput = cleanInput.toLowerCase();
-    const skillsText = skillsList.length > 0 ? skillsList.slice(0, 4).join(', ') : 'competências-chave da área';
+    const skillsText = skillsList.length > 0 ? skillsList.slice(0, 4).join(', ') : 'competências essenciais da função';
     const areaTitle = expRole || (jobTitle ? jobTitle.replace(/^Currículo:\s*/i, '') : 'sua área de atuação');
     const companyText = expCompany ? ` na empresa ${expCompany}` : '';
 
-    // Identificação inteligente de palavras-chave e contexto do cliente
+    // Identificação simples e prática de palavras-chave do dia a dia
     let detectedDomain = '';
-    if (lowerInput.includes('atend') || lowerInput.includes('client') || lowerInput.includes('suporte') || lowerInput.includes('sac')) {
-      detectedDomain = 'atendimento ao cliente, suporte operacional e excelência em relacionamento';
-    } else if (lowerInput.includes('venda') || lowerInput.includes('comercial') || lowerInput.includes('negocia') || lowerInput.includes('metas')) {
-      detectedDomain = 'vendas diretas, negociação comercial e prospecção estratégica de contas';
-    } else if (lowerInput.includes('desenvolv') || lowerInput.includes('program') || lowerInput.includes('sistem') || lowerInput.includes('código') || lowerInput.includes('react') || lowerInput.includes('web') || lowerInput.includes('tech')) {
-      detectedDomain = 'desenvolvimento de software, arquitetura de sistemas e boas práticas de programação';
-    } else if (lowerInput.includes('design') || lowerInput.includes('figma') || lowerInput.includes('ux') || lowerInput.includes('ui') || lowerInput.includes('layout')) {
-      detectedDomain = 'design de interfaces (UI/UX), prototipagem e construção de experiências digitais centrais no usuário';
-    } else if (lowerInput.includes('projet') || lowerInput.includes('gestão') || lowerInput.includes('equipe') || lowerInput.includes('lideran') || lowerInput.includes('gerenc')) {
-      detectedDomain = 'gestão de projetos, liderança de equipes multifuncionais e otimização de processos corporativos';
-    } else if (lowerInput.includes('finan') || lowerInput.includes('contáb') || lowerInput.includes('relat') || lowerInput.includes('custo') || lowerInput.includes('caixa')) {
-      detectedDomain = 'análise financeira, controle orçamentário e elaboração de relatórios gerenciais para tomada de decisão';
-    } else if (cleanInput.length > 15) {
+    if (lowerInput.includes('atend') || lowerInput.includes('client') || lowerInput.includes('suporte') || lowerInput.includes('sac') || lowerInput.includes('recep')) {
+      detectedDomain = 'atendimento ao cliente, recepção e excelência em relacionamento com o público';
+    } else if (lowerInput.includes('venda') || lowerInput.includes('comercial') || lowerInput.includes('balc') || lowerInput.includes('loja')) {
+      detectedDomain = 'atendimento comercial, vendas no varejo e suporte direto ao cliente';
+    } else if (lowerInput.includes('admin') || lowerInput.includes('escrit') || lowerInput.includes('planilh') || lowerInput.includes('document')) {
+      detectedDomain = 'rotinas administrativas, organização de documentos e suporte operacional';
+    } else if (lowerInput.includes('estoq') || lowerInput.includes('caixa') || lowerInput.includes('mercador')) {
+      detectedDomain = 'operações de caixa, controle e reposição de estoque';
+    } else if (cleanInput.length > 12) {
       detectedDomain = cleanInput.replace(/^(eu|trabalhei|faço|fazia|sou|atuo)\s+/i, '');
     } else {
       detectedDomain = areaTitle;
@@ -163,42 +237,42 @@ export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTrig
     if (field === 'summary') {
       if (cleanInput.length >= 10) {
         switch (tone) {
-          case 'executive':
-            return `Profissional orientado(a) a resultados com sólida bagagem em ${detectedDomain}. A partir de atuação prática focada em ${cleanInput.toLowerCase()}, destaca-se pela liderança de rotinas operacionais, aplicação estratégica de ${skillsText} e implementação de processos que otimizam entregas e agregam valor corporativo.`;
-          case 'tech':
-            return `Especialista técnico(a) com consistente histórico de execução em ${detectedDomain}. Com experiência direta em "${cleanInput}", atua com foco em rigor metodológico, utilização de ${skillsText} e automação de fluxos para garantir entregas de alta qualidade e performance.`;
-          case 'concise':
-            return `Profissional focado(a) e objetivo(a) com experiência direta em ${cleanInput.toLowerCase()}. Competência comprovada em ${skillsText}, resolução ágil de problemas operacionais e cumprimento rigoroso de metas estabelecidas.`;
-          case 'creative':
-            return `Profissional inovador(a) com visão estratégica aplicada a ${detectedDomain}. Destaque em transformar a rotina de ${cleanInput.toLowerCase()} através do uso inteligente de ${skillsText}, comunicação assertiva e forte engajamento em equipes colaborativas.`;
+          case 'formal':
+            return `Profissional dedicado(a) e responsável com sólida atuação em ${detectedDomain}. Experiência prática em ${cleanInput.toLowerCase()}, destacando-se pela organização, pontualidade, aplicação de ${skillsText} e colaboração constante para o bom andamento dos trabalhos em equipe.`;
+          case 'objective':
+            return `Profissional focado(a) e pontual com experiência direta em ${cleanInput.toLowerCase()}. Habilidade prática em ${skillsText}, facilidade de aprendizado e dedicação no cumprimento ágil das tarefas diárias da empresa.`;
+          case 'communicative':
+            return `Profissional comunicativo(a) e atencioso(a) com foco em ${detectedDomain}. Destaque no atendimento ao público em ${cleanInput.toLowerCase()}, utilizando ${skillsText} com cordialidade, empatia, clareza e excelente relacionamento interpessoal.`;
+          case 'dedicated':
+            return `Profissional proativo(a) e dinâmico(a) com grande disposição para aprender e colaborar em ${detectedDomain}. Atuação em ${cleanInput.toLowerCase()} com foco em ${skillsText}, presteza, organização e cooperação contínua com toda a equipe.`;
           default:
-            return `Profissional qualificado(a) com sólida atuação em ${cleanInput.toLowerCase()}. Especialista em ${skillsText} com foco em alta produtividade, otimização de tempo e entrega contínua de valor.`;
+            return `Profissional qualificado(a) com experiência em ${cleanInput.toLowerCase()}. Habilidade em ${skillsText} com foco em organização diária, pontualidade e dedicação às metas do setor.`;
         }
       } else {
-        return `Profissional qualificado(a) e motivado(a) com foco de atuação em ${areaTitle}. Possui competências consolidadas em ${skillsText}, destacando-se pela capacidade de aprendizado rápido, organização estruturada e colaboração ativa em equipes de alta performance.`;
+        return `Profissional qualificado(a) e motivado(a) com foco de atuação em ${areaTitle}. Possui competências consolidadas em ${skillsText}, destacando-se pela facilidade de aprendizado, boa organização e cooperação diária em equipe.`;
       }
     } else {
       // Para Experiências Profissionais (descrição digitada)
       if (cleanInput.length >= 10) {
         switch (tone) {
-          case 'executive':
-            return `• Liderança e execução de atividades estratégicas como ${areaTitle}${companyText}, focando em ${cleanInput.toLowerCase()}.\n• Otimização de fluxos de trabalho com aplicação de ${skillsText}, aumentando a produtividade da área em 30%.\n• Acompanhamento contínuo de KPIs e suporte gerencial na resolução de problemas operacionais.`;
-          case 'tech':
-            return `• Atuação técnica especializada na função de ${areaTitle}${companyText}, sendo responsável por ${cleanInput.toLowerCase()}.\n• Aplicação de ${skillsText} na solução de demandas complexas, garantindo alta precisão e redução de falhas em 35%.\n• Automação de processos operacionais e integração ágil com a equipe.`;
-          case 'concise':
-            return `• Atuação direta como ${areaTitle}${companyText}, com foco no desenvolvimento de ${cleanInput.toLowerCase()}.\n• Cumprimento de metas estabelecidas com base em ${skillsText} e entregas dentro dos prazos.\n• Resolução rápida de pendências e suporte contínuo às demandas operacionais.`;
-          case 'creative':
-            return `• Atuação inovadora como ${areaTitle}${companyText}, redesenhando os processos de ${cleanInput.toLowerCase()}.\n• Introdução de melhores práticas com ${skillsText}, elevando o engajamento e a qualidade das entregas em +40%.\n• Comunicação assertiva e forte colaboração com parceiros e clientes estratégicos.`;
+          case 'formal':
+            return `• Execução responsável das atividades da função de ${areaTitle}${companyText}, com foco em ${cleanInput.toLowerCase()}.\n• Aplicação prática de ${skillsText}, mantendo processos organizados e prazos em dia.\n• Cooperação constante com a equipe e atenção à qualidade do trabalho prestado.`;
+          case 'objective':
+            return `• Atuação direta como ${areaTitle}${companyText}, realizando ${cleanInput.toLowerCase()}.\n• Cumprimento pontual das demandas diárias utilizando ${skillsText} com rapidez e eficiência.\n• Apoio contínuo nas rotinas e resolução ágil das necessidades do setor.`;
+          case 'communicative':
+            return `• Atendimento prestativo e cordial na função de ${areaTitle}${companyText}, cuidando de ${cleanInput.toLowerCase()}.\n• Utilização de ${skillsText} para acolher e orientar clientes ou colegas de forma clara e empática.\n• Excelente convivência em equipe e dedicação à satisfação no atendimento.`;
+          case 'dedicated':
+            return `• Apoio diário e proativo na função de ${areaTitle}${companyText}, participando de ${cleanInput.toLowerCase()}.\n• Aplicação de ${skillsText} para agilizar tarefas e manter o setor sempre organizado.\n• Facilidade para aprender novas rotinas e disposição constante para colaborar.`;
           default:
             return `• Execução diária de atividades como ${areaTitle}${companyText}, com foco em ${cleanInput.toLowerCase()}.\n• Aplicação de ${skillsText} para otimização de tempo e garantia dos padrões de qualidade da empresa.`;
         }
       } else {
-        return `• Atuação na função de ${areaTitle}${companyText}, gerenciando rotinas operacionais e entregas prioritárias.\n• Aplicação direta de ${skillsText} para garantia de eficiência e cumprimento de metas departamentais.\n• Elaboração de relatórios de acompanhamento e colaboração ativa em equipe.`;
+        return `• Atuação na função de ${areaTitle}${companyText}, gerenciando rotinas operacionais e entregas prioritárias com pontualidade.\n• Aplicação direta de ${skillsText} para garantia de eficiência e bom atendimento.\n• Organização de materiais e colaboração ativa com toda a equipe de trabalho.`;
       }
     }
   };
 
-  // Simulação de Otimização por IA baseada na Descrição do Cliente
+  // Simulação de Otimização baseada na Descrição do Cliente
   const handleImproveWithAi = (field, currentText, expId = null, toneOverride = selectedTone, expRole = '', expCompany = '') => {
     setAiGenerating(true);
     setAiTargetField(expId ? { type: 'experience', id: expId } : { type: 'summary' });
@@ -211,7 +285,7 @@ export default function ResumeBuilder({ resume, onSave, onBack, userPlan, onTrig
     }, 1100);
   };
 
-  // Gerar Carta de Apresentação com IA
+  // Gerar Carta de Apresentação
   const handleGenerateCoverLetter = () => {
     setShowCoverLetterModal(true);
     setCoverLetterText('Gerando sua Carta de Apresentação Personalizada...');
@@ -327,6 +401,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
       summary,
       experiences,
       skills,
+      template: selectedTemplate,
       updatedAt: new Date().toISOString()
     };
     onSave(updatedResume);
@@ -382,8 +457,8 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
           <div className="wizard-card card animate-fade-in">
             <div className="wizard-header">
               <span className="wizard-step-indicator">Passo {wizardStep} de 4</span>
-              <h2>Currículo Personalizado com IA</h2>
-              <p>Responda algumas perguntas rápidas para que nossa inteligência crie a base perfeita para você.</p>
+              <h2>Currículo Personalizado</h2>
+              <p>Responda algumas perguntas rápidas para que nosso sistema crie a base perfeita para você.</p>
               <div className="wizard-progress-bar">
                 <div className="progress-fill" style={{ width: `${(wizardStep / 4) * 100}%` }}></div>
               </div>
@@ -461,14 +536,14 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
               {wizardStep === 2 && (
                 <div className="wizard-step-content text-left">
                   <h3>Qual o seu cargo desejado ou objetivo de carreira?</h3>
-                  <p className="field-help-text" style={{ marginBottom: '16px' }}>Exemplo: Desenvolvedor Front-end, Gerente de Projetos, Assistente Administrativo.</p>
+                  <p className="field-help-text" style={{ marginBottom: '16px' }}>Exemplo: Atendente, Auxiliar Administrativo, Vendedor(a), Recepcionista.</p>
                   
                   <div className="form-group">
                     <label className="form-label">Objetivo Profissional</label>
                     <input 
                       type="text" 
                       className="form-input" 
-                      placeholder="Ex: Designer UX/UI Sênior" 
+                      placeholder="Ex: Auxiliar Administrativo / Atendente" 
                       value={wizObjective}
                       onChange={(e) => setWizObjective(e.target.value)}
                     />
@@ -501,11 +576,11 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
               {wizardStep === 4 && (
                 <div className="wizard-step-content text-center">
                   <div className="wizard-success-logo">
-                    <Sparkles size={40} className="text-warning" />
+                    <LogoIcon size={40} className="text-warning" />
                   </div>
-                  <h3>Tudo pronto para a IA estruturar seu perfil!</h3>
+                  <h3>Tudo pronto para estruturar seu perfil!</h3>
                   <p style={{ maxWidth: '440px', margin: '12px auto 24px', fontSize: '0.9rem' }}>
-                    Nosso otimizador criará o seu Resumo Profissional e listará suas Competências automaticamente. Você poderá editar cada detalhe a seguir.
+                    Nosso sistema organizará o seu Resumo Profissional e listará suas Competências automaticamente. Você poderá editar cada detalhe a seguir.
                   </p>
                 </div>
               )}
@@ -532,8 +607,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                 </button>
               ) : (
                 <button className="btn btn-primary" onClick={handleCompleteWizard}>
-                  Gerar Currículo Otimizado
-                  <Sparkles size={16} />
+                  Concluir e Criar Currículo
                 </button>
               )}
             </div>
@@ -560,7 +634,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
           <button 
             className={`ats-score-badge ${atsAudit.score >= 80 ? 'high' : atsAudit.score >= 50 ? 'medium' : 'low'}`}
             onClick={() => setShowAtsDrawer(!showAtsDrawer)}
-            title="Clique para ver o diagnóstico de compatibilidade com robôs ATS"
+            title="Clique para ver o checklist de compatibilidade com sistemas ATS de recrutamento"
           >
             <ShieldCheck size={16} />
             <span>ATS: {atsAudit.score}%</span>
@@ -593,7 +667,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
         <div className="ats-audit-drawer card animate-fade-in">
           <div className="ats-drawer-header">
             <div>
-              <h4>📊 Auditoria de Compatibilidade com Sistemas ATS</h4>
+              <h4>📊 Checklist de Compatibilidade com Sistemas ATS</h4>
               <p>Sua pontuação atual é de <strong>{atsAudit.score}%</strong>. Confira o checklist automático:</p>
             </div>
             <button className="close-drawer-btn" onClick={() => setShowAtsDrawer(false)}>✕</button>
@@ -614,7 +688,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
         <div className="wizard-overlay">
           <div className="cover-letter-modal card animate-fade-in">
             <div className="wizard-header">
-              <h3>✉️ Carta de Apresentação Gerada por IA</h3>
+              <h3>✉️ Carta de Apresentação Gerada</h3>
               <p>Personalizada com base nas suas qualificações e no título do currículo.</p>
             </div>
             <div className="cover-letter-body">
@@ -627,10 +701,13 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
             </div>
             <div className="wizard-footer">
               <button 
+                type="button"
                 className="btn btn-secondary"
                 onClick={() => {
                   navigator.clipboard.writeText(coverLetterText);
-                  alert('Carta de apresentação copiada para a área de transferência!');
+                  if (showToast) {
+                    showToast('Carta de apresentação copiada!');
+                  }
                 }}
               >
                 <Copy size={16} /> Copiar Texto
@@ -763,8 +840,35 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
             {/* Aba Sobre */}
             {activeTab === 'summary' && (
               <div className="animate-fade-in">
+                {/* Seletor de Estilo de Redação */}
+                <div className="ai-tone-picker" style={{ marginBottom: '16px' }}>
+                  <span className="tone-picker-label">
+                    <Sliders size={13} /> Estilo de Redação:
+                  </span>
+                  {Object.entries(AI_TONE_SUGGESTIONS).map(([key, data]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`tone-btn ${selectedTone === key ? 'active' : ''}`}
+                      onClick={() => setSelectedTone(key)}
+                    >
+                      {data.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="form-group">
-                  <label className="form-label">Sobre</label>
+                  <div className="label-with-ai">
+                    <label className="form-label" style={{ margin: 0 }}>Sobre / Resumo Profissional</label>
+                    <button 
+                      type="button" 
+                      className="ai-optimize-btn"
+                      onClick={() => handleImproveWithAi('summary', summary, null, selectedTone)}
+                      title="Sugerir modelo de redação baseado no estilo selecionado"
+                    >
+                      <FileEdit size={14} /> Sugerir Redação Executiva
+                    </button>
+                  </div>
                   <textarea 
                     className="form-textarea summary-textarea" 
                     placeholder="Escreva brevemente sobre sua jornada profissional, principais conquistas e diferenciais..."
@@ -775,6 +879,33 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                     Apresente uma síntese clara das suas qualificações, anos de experiência e diferenciais profissionais.
                   </p>
                 </div>
+
+                {/* Exibição da Sugestão para Resumo */}
+                {aiTargetField?.type === 'summary' && (
+                  <div className="ai-suggestion-result card animate-fade-in" style={{ marginTop: '16px' }}>
+                    <div className="ai-result-header">
+                      <FileText size={16} />
+                      <h4>Modelo Sugerido ({AI_TONE_SUGGESTIONS[selectedTone]?.label || 'Estilo Selecionado'})</h4>
+                    </div>
+                    {aiGenerating ? (
+                      <div className="ai-loading">
+                        <span className="spinner-dots">Elaborando proposta de redação...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <p style={{ whiteSpace: 'pre-wrap' }}>{aiSuggestion}</p>
+                        <div className="ai-result-actions">
+                          <button type="button" className="btn btn-primary btn-sm" onClick={handleApplyAiSuggestion}>
+                            Aplicar no Resumo
+                          </button>
+                          <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setAiSuggestion(''); setAiTargetField(null); }}>
+                            Descartar
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -786,7 +917,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                     <div>
                       <h4 style={{ fontSize: '0.95rem', margin: 0 }}>💼 Minhas Experiências Profissionais</h4>
-                      <p style={{ fontSize: '0.82rem', margin: '4px 0 0' }}>Cadastre os cargos anteriores. Utilize nossa IA integrada para estruturar suas conquistas com verbos de ação.</p>
+                      <p style={{ fontSize: '0.82rem', margin: '4px 0 0' }}>Cadastre os cargos anteriores. Utilize nosso otimizador integrado para estruturar suas conquistas com verbos de ação.</p>
                     </div>
 
                     <button 
@@ -797,26 +928,55 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                     </button>
                   </div>
 
-                  {/* Atalhos de Exemplo */}
+                  {/* Seletor de Estilo na aba de experiências */}
+                  <div className="ai-tone-picker" style={{ marginTop: '12px', background: 'var(--bg-secondary)' }}>
+                    <span className="tone-picker-label">
+                      <Sliders size={13} /> Estilo de Redação:
+                    </span>
+                    {Object.entries(AI_TONE_SUGGESTIONS).map(([key, data]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`tone-btn ${selectedTone === key ? 'active' : ''}`}
+                        onClick={() => setSelectedTone(key)}
+                      >
+                        {data.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Atalhos de Exemplo Comuns */}
                   <div className="quick-exp-templates" style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>💡 Exemplo Rápido:</span>
                     <button 
                       className="bundle-skill-btn"
-                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Desenvolvedor Frontend', company: 'Tech Innovation', period: 'Jan/2023 - Presente', description: 'Desenvolvimento de interfaces Web com React e TypeScript. Refatoração de código que reduziu o tempo de carregamento em 30%.' }])}
+                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Atendente ao Cliente / Balcão', company: 'Comércio & Serviços', period: 'Jan/2023 - Presente', description: 'Atendimento presencial e telefônico aos clientes com cordialidade e agilidade. Esclarecimento de dúvidas sobre produtos/serviços e apoio na organização do setor.' }])}
                     >
-                      + Exemplo Tech / Dev
+                      + Atendimento / Balcão
                     </button>
                     <button 
                       className="bundle-skill-btn"
-                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Analista de Atendimento', company: 'Global Services', period: 'Mar/2022 - Presente', description: 'Atendimento direto ao cliente, resolução de ocorrências críticas e acompanhamento de relatórios de satisfação (NPS).' }])}
+                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Auxiliar Administrativo', company: 'Escritório Comercial', period: 'Mar/2022 - Presente', description: 'Organização de arquivos e documentos físicos e digitais, preenchimento de planilhas de controle, atendimento telefônico e apoio nas rotinas diárias da equipe.' }])}
                     >
-                      + Exemplo Atendimento / SAC
+                      + Auxiliar Administrativo
                     </button>
                     <button 
                       className="bundle-skill-btn"
-                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Coordenador de Vendas', company: 'Comercial Alfa', period: 'Jun/2021 - Presente', description: 'Gestão de carteira B2B e liderança de equipe comercial, atingindo 120% das metas anuais.' }])}
+                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Vendedor(a) / Balconista', company: 'Loja Varejista', period: 'Jun/2021 - Presente', description: 'Apresentação de mercadorias, atendimento e orientação aos clientes na loja, organização de vitrine e reposição de produtos com foco em metas.' }])}
                     >
-                      + Exemplo Vendas / Gestão
+                      + Vendedor(a) / Loja
+                    </button>
+                    <button 
+                      className="bundle-skill-btn"
+                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Operador(a) de Caixa e Estoque', company: 'Supermercado & Distribuidora', period: 'Fev/2022 - Presente', description: 'Abertura e fechamento de caixa, registro de mercadorias com rapidez e atenção, conferência de notas fiscais e reposição de itens no estoque.' }])}
+                    >
+                      + Caixa & Estoque
+                    </button>
+                    <button 
+                      className="bundle-skill-btn"
+                      onClick={() => setExperiences([...experiences, { id: Date.now().toString(), role: 'Auxiliar Operacional / Apoio', company: 'Prestadora de Serviços', period: 'Ago/2021 - Presente', description: 'Execução de rotinas operacionais diárias com pontualidade, conservação e organização dos materiais de trabalho e apoio constante aos colegas.' }])}
+                    >
+                      + Serviços Gerais / Apoio
                     </button>
                   </div>
                 </div>
@@ -845,7 +1005,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                         <input 
                           type="text" 
                           className="form-input" 
-                          placeholder="Ex: Analista de Sistemas, Vendedor, Gerente de Projetos..." 
+                          placeholder="Ex: Atendente, Auxiliar Administrativo, Vendedor(a), Operador de Caixa..." 
                           value={exp.role}
                           onChange={(e) => handleUpdateExperience(exp.id, 'role', e.target.value)}
                         />
@@ -857,7 +1017,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                           <input 
                             type="text" 
                             className="form-input" 
-                            placeholder="Ex: Tech Solutions Ltda" 
+                            placeholder="Ex: Comércio e Serviços Ltda" 
                             value={exp.company}
                             onChange={(e) => handleUpdateExperience(exp.id, 'company', e.target.value)}
                           />
@@ -881,14 +1041,14 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                             className="ai-optimize-btn"
                             onClick={() => handleImproveWithAi('experience', exp.description, exp.id, selectedTone, exp.role, exp.company)}
                           >
-                            <Sparkles size={14} /> Otimizar & Gerar com IA
+                            <FileEdit size={14} /> Sugerir Redação Profissional
                           </button>
                         </div>
 
                         {/* Toolbar de Verbos de Ação Rápidos */}
                         <div className="action-verbs-toolbar" style={{ margin: '6px 0 8px', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-tertiary)' }}><Wand2 size={11} /> Verbos de Impacto:</span>
-                          {['Liderei', 'Otimizei', 'Gerenciei', 'Implementei', 'Reduzi em 30%', 'Desenvolvi', 'Aumentei'].map((verb) => (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-tertiary)' }}><CheckCircle size={12} /> Verbos de Ação:</span>
+                          {['Atendi', 'Organizei', 'Auxiliei', 'Realizei', 'Colaborei', 'Controlei', 'Finalizei', 'Apoiei', 'Gerenciei'].map((verb) => (
                             <button
                               key={verb}
                               type="button"
@@ -907,22 +1067,22 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                         <textarea 
                           className="form-textarea" 
                           rows={4}
-                          placeholder="Descreva o que você fazia ou suas principais conquistas (ex: Liderei equipe de 5 pessoas, atendi 40+ clientes/dia, reduzi custos)..."
+                          placeholder="Descreva o que você fazia ou suas principais atividades (ex: Atendimento ao público, organização de notas e planilhas, controle de estoque, suporte à equipe)..."
                           value={exp.description}
                           onChange={(e) => handleUpdateExperience(exp.id, 'description', e.target.value)}
                         ></textarea>
                       </div>
 
-                      {/* Exibição da Sugestão da IA para Experiência */}
+                      {/* Exibição da Sugestão Otimizada para Experiência */}
                       {aiTargetField?.type === 'experience' && aiTargetField.id === exp.id && (
                         <div className="ai-suggestion-result card animate-fade-in">
                           <div className="ai-result-header">
-                            <Sparkles size={16} />
-                            <h4>Sugestão Otimizada pela IA para {exp.role || 'Experiência'}</h4>
+                            <FileText size={16} />
+                            <h4>Modelo Sugerido para {exp.role || 'Experiência'}</h4>
                           </div>
                           {aiGenerating ? (
                             <div className="ai-loading">
-                              <span className="spinner-dots">Estruturando conquistas executivas com métricas...</span>
+                              <span className="spinner-dots">Elaborando proposta de redação...</span>
                             </div>
                           ) : (
                             <>
@@ -958,7 +1118,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                     <input 
                       type="text" 
                       className="form-input" 
-                      placeholder="Ex: React, Gestão Ágil, Excel" 
+                      placeholder="Ex: Atendimento ao Cliente, Organização, Informática Básica, Pontualidade..." 
                       id="skill-input-field"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -984,7 +1144,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
 
                 {/* Sugestões Rápidas de Habilidades por Área */}
                 <div className="skill-bundles-section">
-                  <label className="form-label" style={{ fontSize: '0.85rem' }}>✨ Sugestões Inteligentes de Habilidades por Área:</label>
+                  <label className="form-label" style={{ fontSize: '0.85rem' }}>Sugestões de Habilidades por Área:</label>
                   <div className="bundles-grid">
                     {SKILL_BUNDLES.map((bundle, bIdx) => (
                       <div key={bIdx} className="bundle-card">
@@ -1062,7 +1222,7 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                   onClick={() => setSelectedTemplate('creative')}
                   title="Layout Extravagante & Vibrante"
                 >
-                  <Sparkles size={14} /> Extravagante
+                    <LogoIcon size={14} /> Extravagante
                 </button>
               </div>
             </div>
@@ -1189,6 +1349,13 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                             </div>
                           </section>
                         )}
+
+                        {extraNotes && (
+                          <section className="doc-section">
+                            <h3 className="doc-section-title">Informações Adicionais</h3>
+                            <p className="doc-summary-text">{extraNotes}</p>
+                          </section>
+                        )}
                       </div>
 
                       <div className="tech-col-sidebar">
@@ -1240,6 +1407,13 @@ ${email ? `E-mail: ${email}` : ''} ${phone ? `| Tel: ${phone}` : ''}`;
                               <span key={skill} className="doc-skill-badge">{skill}</span>
                             ))}
                           </div>
+                        </section>
+                      )}
+
+                      {extraNotes && (
+                        <section className="doc-section">
+                          <h3 className="doc-section-title">Informações Adicionais</h3>
+                          <p className="doc-summary-text">{extraNotes}</p>
                         </section>
                       )}
                     </>

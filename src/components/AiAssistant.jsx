@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  MessageSquare, X, Send, Sparkles, User, Bot, HelpCircle, 
-  Briefcase, FileText, Target, Award, Copy, Check, RefreshCw
+  MessageSquare, X, Send, User, UserCheck, HelpCircle, 
+  Briefcase, FileText, Target, Award, Copy, Check, RefreshCw, Compass
 } from 'lucide-react';
+import ChatHelpIcon from './ChatHelpIcon';
 import './AiAssistant.css';
 
-// Base de Conhecimento Ampliada para o Consultor de IA
+// Base de Conhecimento Ampliada para o Consultor
 const AI_KNOWLEDGE_BASE = [
   {
     keywords: ['ats', 'filtro', 'rh', 'robo', 'triagem', 'leitura automatica'],
@@ -15,17 +16,17 @@ const AI_KNOWLEDGE_BASE = [
   {
     keywords: ['resumo', 'perfil', 'introducao', 'apresentacao', 'sobre mim'],
     topic: 'Resumo Profissional',
-    answer: '✍️ **Como criar um Resumo de Alto Impacto:**\n\n- **Estrutura Recomendada**: [Cargo principal] com [X anos de experiência] em [suas 3 principais especialidades].\n- Exemplo: *"Desenvolvedor Full Stack com 4+ anos em React e Node.js. Especialista em arquiteturas escaláveis e redução de latência em sistemas de alto tráfego."*'
+    answer: '✍️ **Como criar um Resumo de Alto Impacto:**\n\n- **Estrutura Recomendada**: [Cargo principal] com [tempo de experiência] em [suas principais qualidades].\n- Exemplo: *"Profissional de Atendimento e Vendas com 3 anos de experiência em recepção, rotinas administrativas e fidelização de clientes. Foco em cordialidade, pontualidade e organização."*'
   },
   {
     keywords: ['habilidades', 'skills', 'competencias', 'hard skill', 'soft skill'],
     topic: 'Habilidades no Currículo',
-    answer: '💡 **Equilíbrio de Competências:**\n\n- **Hard Skills**: Tecnologias, softwares, idiomas, certificações técnicas.\n- **Soft Skills**: Comunicação assertiva, resolução de problemas, liderança colaborativa, adaptabilidade.\n- *Dica*: Escolha de 6 a 10 habilidades diretamente alinhadas à vaga desejada.'
+    answer: '💡 **Equilíbrio de Competências:**\n\n- **Habilidades Práticas**: Atendimento ao público, rotinas de escritório, controle de caixa, pacote Office, digitação.\n- **Qualidades Pessoais**: Boa comunicação, pontualidade, trabalho em equipe, simpatia e disposição para aprender.\n- *Dica*: Escolha de 6 a 8 competências diretamente relacionadas ao cargo desejado.'
   },
   {
     keywords: ['experiencia', 'conquistas', 'resultados', 'metricas', 'verbos'],
     topic: 'Descrição de Experiências',
-    answer: '🚀 **Fórmula de Ação + Conquista:**\n\nComece cada bullet point com **verbos de ação** seguidos por um **resultado mensurável**:\n\n- *"Liderei refatoração de código que reduziu o tempo de carregamento em 35%."*\n- *"Gerenciei carteira de 40+ clientes, elevando o NPS em 18 pontos."*'
+    answer: '🚀 **Fórmula de Ação + Responsabilidade:**\n\nComece cada item com **verbos de ação** seguidos pelo que você fazia:\n\n- *"Atendi mais de 40 clientes por dia com cordialidade e agilidade."*\n- *"Organizei os arquivos e documentos da empresa, facilitando a consulta diária da equipe."*'
   },
   {
     keywords: ['entrevista', 'perguntas', 'comportamental', 'dicas de entrevista', 'diferencial'],
@@ -74,7 +75,7 @@ export default function AiAssistant() {
     {
       id: 1,
       sender: 'bot',
-      text: '👋 **Olá! Sou o Assistente Neural do CurrículoIA Pro.**\n\nPosso atuar como seu **Consultor de Carreira**, **Reescritor de Frases**, **Simulador de Entrevistas** ou **Analisador de Vagas**. Como posso te impulsionar hoje?',
+      text: 'Olá! Sou o seu **Consultor de Carreira do RESUMETECH**.\n\nPosso orientar sua jornada profissional com **Diretrizes de ATS**, **Redação Executiva**, **Simulação de Entrevistas** ou **Análise de Vagas**. Como posso te orientar hoje?',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -90,20 +91,20 @@ export default function AiAssistant() {
     scrollToBottom();
   }, [messages, isTyping, activeMode]);
 
-  // Alternar Modos da IA
+  // Alternar Modos do Assistente
   const handleModeChange = (mode) => {
     setActiveMode(mode);
     let welcomeMsg = '';
 
     if (mode === 'consultant') {
-      welcomeMsg = '💡 **Modo Consultor de Carreira & ATS Ativado.** Pergunta qualquer dúvida sobre estruturação de currículo, palavras-chave, salários ou otimização ATS!';
+      welcomeMsg = '💡 **Consultoria de Carreira & ATS Ativada.** Pergunte sobre estruturação de currículo, termos estratégicos, compatibilidade ATS e padrões de recrutamento!';
     } else if (mode === 'writer') {
-      welcomeMsg = '✍️ **Modo Reescritor de Impacto Ativado.** Cole uma frase simples ou descrição de trabalho para eu transformar em um tópico executivo de alto valor com verbos de ação!';
+      welcomeMsg = '✍️ **Aprimorador de Redação Ativado.** Digite uma atividade ou frase simples para transformá-la em uma descrição profissional de alto impacto com verbos de ação!';
     } else if (mode === 'interviewer') {
-      welcomeMsg = `💼 **Modo Simulador de Entrevista Ativado.** Escolha a área abaixo e responda à pergunta:\n\n❓ *"${INTERVIEW_QUESTIONS[interviewRole][0]}"*`;
+      welcomeMsg = `💼 **Simulação de Entrevistas Ativada.** Selecione o segmento abaixo e responda à questão prática:\n\n❓ *"${INTERVIEW_QUESTIONS[interviewRole][0]}"*`;
       setInterviewQuestionIndex(0);
     } else if (mode === 'jobMatch') {
-      welcomeMsg = '🎯 **Modo Analisador de Vagas Ativado.** Cole o texto completo de uma vaga de emprego para eu extrair os requisitos essenciais, competências-chave e palavras-chave recomendadas!';
+      welcomeMsg = '🎯 **Analisador de Vagas Ativado.** Cole os requisitos de uma oportunidade para identificar competências essenciais e termos recomendados para o seu perfil!';
     }
 
     setMessages((prev) => [
@@ -139,17 +140,17 @@ export default function AiAssistant() {
 
       if (activeMode === 'writer') {
         // Reescritor de Impacto
-        botResponse = `✨ **Sugestão de Reescrita de Alto Impacto:**\n\n> "${userQuery}"\n\n🚀 **Versão Executiva Otimizada:**\n"Atuação estratégica com foco em ${userQuery.toLowerCase()}, aplicando boas práticas de gestão e entregando resultados mensuráveis que otimizaram os processos operacionais em +25%."\n\n*Dica*: Você pode copiar esse texto e usar diretamente no seu currículo!`;
+        botResponse = `✦ **Sugestão de Redação Executiva:**\n\n> "${userQuery}"\n\n💼 **Versão Profissional Otimizada:**\n"Atuação consistente com foco em ${userQuery.toLowerCase()}, aplicando boas práticas de gestão e entrega de resultados para o setor."\n\n*Dica*: Você pode copiar esse texto e utilizá-lo diretamente no seu currículo!`;
       } else if (activeMode === 'interviewer') {
         // Avaliador de Resposta de Entrevista
         const currentQ = INTERVIEW_QUESTIONS[interviewRole][interviewQuestionIndex];
         const nextIdx = (interviewQuestionIndex + 1) % INTERVIEW_QUESTIONS[interviewRole].length;
         setInterviewQuestionIndex(nextIdx);
 
-        botResponse = `📊 **Análise da sua Resposta para a Entrevista:**\n\n✅ **Pontos Fortes**: Demonstrou clareza na exposição das ideias e boa articulação profissional.\n💡 **Oportunidade de Melhoria**: Tente incluir números ou dados específicos no Método STAR (Situação, Tarefa, Ação, Resultado).\n\n⭐ **Nota da Resposta**: 8.8/10\n\n---\n❓ **Próxima Pergunta:**\n*"${INTERVIEW_QUESTIONS[interviewRole][nextIdx]}"*`;
+        botResponse = `📊 **Avaliação da sua Resposta:**\n\n✅ **Pontos Fortes**: Demonstrou clareza na exposição das ideias e boa articulação profissional.\n💡 **Recomendação**: Adicione métricas ou dados específicos pelo Método STAR (Situação, Tarefa, Ação, Resultado).\n\n⭐ **Avaliação**: 9.0/10\n\n---\n❓ **Próxima Pergunta:**\n*"${INTERVIEW_QUESTIONS[interviewRole][nextIdx]}"*`;
       } else if (activeMode === 'jobMatch') {
         // Analisador de Requisitos de Vaga
-        botResponse = `🎯 **Análise Inteligente da Vaga:**\n\n🔑 **Palavras-Chave Obrigatórias Extradas:**\n- Comunicação Estratégica\n- Gestão de Projetos / Processos\n- Análise de Dados & Métricas\n- Trabalho em Equipe Multifuncional\n\n⚡ **Competências Recomendadas para Adicionar:**\n1. Resolução Ágil de Conflitos\n2. Ferramentas de Gestão Digital\n3. Visão Orientada a Resultados (KPIs)\n\n📌 *Dica: Insira essas exatas palavras no seu resumo e na lista de habilidades para pontuar mais alto nos robôs ATS!*`;
+        botResponse = `🎯 **Diagnóstico de Requisitos da Vaga:**\n\n🔑 **Termos-Chave Estratégicos Identificados:**\n- Comunicação Assertiva\n- Gestão de Processos e Prazos\n- Organização & Atenção aos Detalhes\n- Cooperação em Equipe\n\n⚡ **Competências Recomendadas para Adicionar:**\n1. Resolução Eficiente de Problemas\n2. Domínio de Ferramentas de Produtividade\n3. Visão Orientada a Resultados\n\n📌 *Dica: Insira essas exatas palavras no seu resumo e na lista de competências para maximizar sua pontuação nos sistemas de triagem e recrutamento (ATS)!*`;
       } else {
         // Modo Consultor de Carreira
         const queryLower = userQuery.toLowerCase();
@@ -160,7 +161,7 @@ export default function AiAssistant() {
         if (matchedTopic) {
           botResponse = matchedTopic.answer;
         } else {
-          botResponse = `🤖 **Dica da IA para "${userQuery}":**\n\nPara maximizar as chances do seu currículo ser selecionado:\n1. Mantenha as informações organizadas cronologicamente.\n2. Destaque conquistas com métricas quantificáveis.\n3. Utilize palavras-chave específicas da vaga desejada.\n\nQuer que eu ajude a **reescrever um trecho** ou **simular uma entrevista**? Basta mudar de modo nas abas acima!`;
+          botResponse = `💼 **Orientação para "${userQuery}":**\n\nPara maximizar o impacto do seu currículo:\n1. Mantenha as informações organizadas cronologicamente.\n2. Destaque responsabilidades com foco em resultados concretos.\n3. Utilize termos diretamente alinhados à vaga desejada.\n\nPrecisa de apoio para **aprimorar um texto** ou **treinar para uma entrevista**? Basta mudar de modo nas abas acima!`;
         }
       }
 
@@ -191,10 +192,14 @@ export default function AiAssistant() {
     <div className="ai-assistant-wrapper">
       {/* Botão Flutuante */}
       {!isOpen && (
-        <button className="ai-floating-btn animate-fade-in" onClick={() => setIsOpen(true)}>
+        <button 
+          className="ai-floating-btn animate-fade-in" 
+          onClick={() => setIsOpen(true)}
+          aria-label="Abrir assistente de carreira inteligente"
+        >
           <div className="pulse-ring"></div>
-          <Sparkles className="icon-glow" size={24} />
-          <span className="btn-badge">IA 3.0</span>
+          <ChatHelpIcon className="icon-glow" size={28} />
+          <span className="btn-badge">CONSULTOR</span>
         </button>
       )}
 
@@ -205,31 +210,35 @@ export default function AiAssistant() {
           <div className="ai-chat-header">
             <div className="ai-header-info">
               <div className="ai-avatar">
-                <Sparkles size={18} />
+                <Compass size={20} />
               </div>
               <div>
-                <h4>Assistente Neural CurrículoIA</h4>
-                <span className="status-online">IA Multimodal Gratuita</span>
+                <h4>Consultoria de Carreira</h4>
+                <span className="status-online">Orientação Executiva & ATS</span>
               </div>
             </div>
-            <button className="ai-close-btn" onClick={() => setIsOpen(false)}>
+            <button 
+              className="ai-close-btn" 
+              onClick={() => setIsOpen(false)}
+              aria-label="Fechar assistente"
+            >
               <X size={18} />
             </button>
           </div>
 
-          {/* Abas de Modos da IA */}
+          {/* Abas de Modos do Assistente */}
           <div className="ai-mode-selector">
             <button 
               className={`mode-tab ${activeMode === 'consultant' ? 'active' : ''}`}
               onClick={() => handleModeChange('consultant')}
             >
-              <Bot size={13} /> Consultor ATS
+              <Compass size={13} /> Orientação ATS
             </button>
             <button 
               className={`mode-tab ${activeMode === 'writer' ? 'active' : ''}`}
               onClick={() => handleModeChange('writer')}
             >
-              <FileText size={13} /> Reescritor
+              <FileText size={13} /> Redação
             </button>
             <button 
               className={`mode-tab ${activeMode === 'interviewer' ? 'active' : ''}`}
@@ -241,7 +250,7 @@ export default function AiAssistant() {
               className={`mode-tab ${activeMode === 'jobMatch' ? 'active' : ''}`}
               onClick={() => handleModeChange('jobMatch')}
             >
-              <Target size={13} /> Analisar Vaga
+              <Target size={13} /> Diagnóstico de Vaga
             </button>
           </div>
 
@@ -281,7 +290,7 @@ export default function AiAssistant() {
             {messages.map((msg) => (
               <div key={msg.id} className={`chat-bubble-container ${msg.sender}`}>
                 <div className="avatar-chat">
-                  {msg.sender === 'bot' ? <Bot size={14} /> : <User size={14} />}
+                  {msg.sender === 'bot' ? <UserCheck size={14} /> : <User size={14} />}
                 </div>
                 <div className="chat-bubble">
                   <div className="chat-bubble-content">
@@ -308,7 +317,7 @@ export default function AiAssistant() {
             {isTyping && (
               <div className="chat-bubble-container bot">
                 <div className="avatar-chat">
-                  <Bot size={14} />
+                  <UserCheck size={14} />
                 </div>
                 <div className="chat-bubble typing">
                   <div className="typing-indicator">
@@ -342,21 +351,21 @@ export default function AiAssistant() {
                 <button onClick={() => handleQuickQuestion('Fazia atendimento aos clientes e organizava relatórios')}>
                   💡 Exemplo 1
                 </button>
-                <button onClick={() => handleQuickQuestion('Desenvolvia sites em React e corrigia bugs')}>
+                <button onClick={() => handleQuickQuestion('Cuidava da organização de mercadorias e fechamento de caixa')}>
                   💡 Exemplo 2
                 </button>
               </>
             )}
             {activeMode === 'interviewer' && (
               <>
-                <button onClick={() => handleQuickQuestion('Busco estruturar minha resposta focando em liderança e metas claras.')}>
+                <button onClick={() => handleQuickQuestion('Busco estruturar minha resposta focando em pontualidade e bom convívio em equipe.')}>
                   💬 Dica de resposta
                 </button>
               </>
             )}
             {activeMode === 'jobMatch' && (
               <>
-                <button onClick={() => handleQuickQuestion('Vaga: Desenvolvedor Front-end com React, TypeScript, Git e experiência com testes unitários e metodologia ágil Scrum.')}>
+                <button onClick={() => handleQuickQuestion('Vaga: Auxiliar Administrativo / Atendente com foco em atendimento ao cliente, organização de arquivos, pacote Office e rotinas de recepção.')}>
                   📋 Exemplo de Vaga
                 </button>
               </>
@@ -365,17 +374,18 @@ export default function AiAssistant() {
 
           {/* Input Form */}
           <form className="ai-chat-input" onSubmit={handleSendMessage}>
-            <input
-              type="text"
-              placeholder={
-                activeMode === 'writer' ? 'Cole uma frase para a IA reescrever...' :
-                activeMode === 'interviewer' ? 'Escreva sua resposta para a pergunta acima...' :
-                activeMode === 'jobMatch' ? 'Cole os requisitos ou texto da vaga...' :
-                'Pergunte algo ao Consultor de IA...'
-              }
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-            />
+              <input
+                type="text"
+                placeholder={
+                  activeMode === 'writer' ? 'Cole uma frase para reescrever...' :
+                  activeMode === 'interviewer' ? 'Escreva sua resposta para a pergunta acima...' :
+                  activeMode === 'jobMatch' ? 'Cole os requisitos ou texto da vaga...' :
+                  'Pergunte algo ao consultor...'
+                }
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                aria-label="Mensagem para o assistente"
+              />
             <button type="submit" disabled={!inputText.trim() || isTyping}>
               <Send size={16} />
             </button>

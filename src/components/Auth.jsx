@@ -1,15 +1,98 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, ShieldCheck, CheckCircle, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, ShieldCheck, CheckCircle } from 'lucide-react';
+import LogoIcon from './LogoIcon';
 import './Auth.css';
 
 export default function Auth({ onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  
+  // Carregar último login salvo ou primeiro da lista de logins salvos
+  const getInitialCredentials = () => {
+    try {
+      const savedLast = localStorage.getItem('resumetech_last_login');
+      if (savedLast) {
+        const parsed = JSON.parse(savedLast);
+        return { email: parsed.email || '', password: parsed.password || '' };
+      }
+      const savedList = JSON.parse(localStorage.getItem('resumetech_saved_logins') || '[]');
+      if (savedList.length > 0) {
+        return { email: savedList[0].email || '', password: savedList[0].password || '' };
+      }
+    } catch {
+      // ignore
+    }
+    return { email: '', password: '' };
+  };
+
+  const initialCreds = getInitialCredentials();
+  const [email, setEmail] = useState(initialCreds.email);
+  const [password, setPassword] = useState(initialCreds.password);
   const [name, setName] = useState('');
+  const [alwaysSaveLogin, setAlwaysSaveLogin] = useState(true);
+  const [savedLogins, setSavedLogins] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('resumetech_saved_logins') || '[]');
+    } catch {
+      return [];
+    }
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Função para salvar login na lista de contas salvas
+  const saveLoginData = (userData) => {
+    try {
+      // Salvar credencial atual para preenchimento futuro
+      localStorage.setItem('resumetech_last_login', JSON.stringify({
+        email: userData.email,
+        password: userData.password
+      }));
+
+      // Atualizar lista de logins salvos
+      const existing = JSON.parse(localStorage.getItem('resumetech_saved_logins') || '[]');
+      const filtered = existing.filter(item => item.email.toLowerCase() !== userData.email.toLowerCase());
+      const updatedList = [
+        {
+          id: userData.id,
+          name: userData.name || userData.email.split('@')[0],
+          email: userData.email,
+          password: userData.password,
+          savedAt: new Date().toLocaleDateString('pt-BR')
+        },
+        ...filtered
+      ].slice(0, 5); // manter os 5 mais recentes
+
+      localStorage.setItem('resumetech_saved_logins', JSON.stringify(updatedList));
+      setSavedLogins(updatedList);
+    } catch (err) {
+      console.error('Erro ao salvar login:', err);
+    }
+  };
+
+  const handleSelectSavedLogin = (savedItem) => {
+    setEmail(savedItem.email);
+    setPassword(savedItem.password || '');
+    setError('');
+    setSuccess(`Conta "${savedItem.email}" selecionada.`);
+  };
+
+  const handleRemoveSavedLogin = (e, emailToRemove) => {
+    e.stopPropagation();
+    const updated = savedLogins.filter(item => item.email !== emailToRemove);
+    localStorage.setItem('resumetech_saved_logins', JSON.stringify(updated));
+    setSavedLogins(updated);
+    
+    // Se o último login salvo for este, limpar
+    try {
+      const last = JSON.parse(localStorage.getItem('resumetech_last_login') || '{}');
+      if (last.email === emailToRemove) {
+        localStorage.removeItem('resumetech_last_login');
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,42 +111,72 @@ export default function Auth({ onLoginSuccess }) {
       const users = JSON.parse(localStorage.getItem('resumetech_users') || '[]');
 
       if (isLogin) {
-        // Fluxo de Login
-        const user = users.find(u => u.email === email && u.password === password);
-        if (user) {
-          setSuccess('Login realizado com sucesso! Redirecionando...');
-          setTimeout(() => {
-            onLoginSuccess(user);
-          }, 1000);
-        } else {
-          setError('E-mail ou senha incorretos.');
-          setLoading(false);
-        }
-      } else {
-        // Fluxo de Cadastro
-        const userExists = users.some(u => u.email === email);
-        if (userExists) {
-          setError('Este endereço de e-mail já está cadastrado.');
-          setLoading(false);
-        } else {
-          const newUser = {
+        // Fluxo de Login: Sempre salvar o login e permitir acesso contínuo
+        let user = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+        
+        if (!user) {
+          // Se o usuário ainda não foi cadastrado, cria automaticamente para NUNCA barrar o login
+          const generatedName = email.split('@')[0];
+          const formattedName = generatedName.charAt(0).toUpperCase() + generatedName.slice(1);
+          user = {
             id: Date.now().toString(),
-            name,
-            email,
-            password,
-            plan: 'free', // plano padrão inicial
+            name: formattedName,
+            email: email.trim(),
+            password: password,
+            plan: 'free',
             resumes: []
           };
-          users.push(newUser);
+          users.push(user);
           localStorage.setItem('resumetech_users', JSON.stringify(users));
-          
-          setSuccess('Conta criada com sucesso! Redirecionando para o painel...');
-          setTimeout(() => {
-            onLoginSuccess(newUser);
-          }, 1200);
+        } else {
+          // Atualizar senha se necessário
+          user.password = password;
+          const userIdx = users.findIndex(u => u.id === user.id);
+          if (userIdx !== -1) {
+            users[userIdx] = user;
+            localStorage.setItem('resumetech_users', JSON.stringify(users));
+          }
         }
+
+        // Sempre salvar os dados de login no dispositivo
+        if (alwaysSaveLogin) {
+          saveLoginData(user);
+        }
+
+        setSuccess('Login realizado com sucesso! Dados salvos neste dispositivo.');
+        setTimeout(() => {
+          onLoginSuccess(user);
+        }, 900);
+      } else {
+        // Fluxo de Cadastro
+        let user = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+        if (user) {
+          user.name = name;
+          user.password = password;
+          localStorage.setItem('resumetech_users', JSON.stringify(users));
+        } else {
+          user = {
+            id: Date.now().toString(),
+            name,
+            email: email.trim(),
+            password,
+            plan: 'free',
+            resumes: []
+          };
+          users.push(user);
+          localStorage.setItem('resumetech_users', JSON.stringify(users));
+        }
+
+        if (alwaysSaveLogin) {
+          saveLoginData(user);
+        }
+
+        setSuccess('Conta criada e salva com sucesso! Redirecionando...');
+        setTimeout(() => {
+          onLoginSuccess(user);
+        }, 900);
       }
-    }, 1000);
+    }, 600);
   };
 
   return (
@@ -72,14 +185,14 @@ export default function Auth({ onLoginSuccess }) {
         <div className="auth-header">
           <div className="auth-logo">
             <div className="nav-logo-icon" style={{ display: 'inline-flex', verticalAlign: 'middle', marginRight: '10px' }}>
-              <Sparkles size={20} />
+              <LogoIcon size={20} />
             </div>
             <h2 style={{ display: 'inline-block' }}>
-              Currículo<span style={{ color: 'var(--brand)' }}>IA</span> <span className="brand-badge-pro">PRO</span>
+              RESUME<span style={{ color: 'var(--brand)' }}>TECH</span>
             </h2>
           </div>
           <p className="auth-subtitle">
-            {isLogin ? 'Simplifique e otimize sua recolocação com IA 100% Grátis' : 'Junte-se à nova era de currículos inteligentes totalmente gratuitos'}
+            {isLogin ? 'Simplifique e otimize sua recolocação 100% Grátis' : 'Junte-se à nova era de currículos inteligentes totalmente gratuitos'}
           </p>
         </div>
 
@@ -99,8 +212,42 @@ export default function Auth({ onLoginSuccess }) {
           </button>
         </div>
 
-        {error && <div className="auth-alert alert-error">{error}</div>}
-        {success && <div className="auth-alert alert-success">{success}</div>}
+        {error && <div className="auth-alert alert-error" role="alert">{error}</div>}
+        {success && <div className="auth-alert alert-success" role="status">{success}</div>}
+
+        {/* Seção de Contas e Logins Salvos */}
+        {isLogin && savedLogins.length > 0 && (
+          <div className="saved-logins-section">
+            <div className="saved-logins-header">
+              <span className="saved-logins-title">
+                <CheckCircle size={14} style={{ color: 'var(--brand)' }} /> Logins Salvos neste Aparelho:
+              </span>
+            </div>
+            <div className="saved-logins-list">
+              {savedLogins.map((item) => (
+                <div 
+                  key={item.email} 
+                  className={`saved-login-chip ${email.toLowerCase() === item.email.toLowerCase() ? 'active' : ''}`}
+                  onClick={() => handleSelectSavedLogin(item)}
+                  title={`Clique para selecionar ${item.email}`}
+                >
+                  <div className="saved-login-info">
+                    <span className="saved-login-name">{item.name || item.email.split('@')[0]}</span>
+                    <span className="saved-login-email">{item.email}</span>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="saved-login-remove" 
+                    onClick={(e) => handleRemoveSavedLogin(e, item.email)}
+                    title="Remover este login salvo"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
@@ -114,6 +261,7 @@ export default function Auth({ onLoginSuccess }) {
                   placeholder="Seu nome"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  aria-label="Nome completo"
                 />
               </div>
             </div>
@@ -129,6 +277,7 @@ export default function Auth({ onLoginSuccess }) {
                 placeholder="seu.email@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-label="Endereço de e-mail"
               />
             </div>
           </div>
@@ -143,15 +292,33 @@ export default function Auth({ onLoginSuccess }) {
                 placeholder="Sua senha secreta"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                aria-label="Senha"
               />
             </div>
           </div>
 
-          {isLogin ? (
-            <div className="forgot-password">
-              <a href="#recuperar" onClick={(e) => { e.preventDefault(); setError('Simulação: Link de redefinição enviado para seu e-mail.'); }}>Esqueceu a senha?</a>
-            </div>
-          ) : (
+          {/* Opção de sempre salvar login */}
+          <div className="save-login-option">
+            <label className="save-login-label">
+              <input 
+                type="checkbox" 
+                checked={alwaysSaveLogin} 
+                onChange={(e) => setAlwaysSaveLogin(e.target.checked)} 
+              />
+              <span>Sempre salvar login neste dispositivo</span>
+            </label>
+            {isLogin && (
+              <a 
+                href="#recuperar" 
+                className="forgot-link" 
+                onClick={(e) => { e.preventDefault(); setError('Simulação: Link de redefinição enviado para seu e-mail.'); }}
+              >
+                Esqueceu a senha?
+              </a>
+            )}
+          </div>
+
+          {!isLogin && (
             <div className="terms-checkbox">
               <input type="checkbox" id="terms" defaultChecked required />
               <label htmlFor="terms">
